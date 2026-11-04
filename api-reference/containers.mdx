@@ -1,0 +1,49 @@
+---
+title: "Containers & Registry Endpoints"
+description: "Managing deployments, scaling instances, querying images, and streaming container logs."
+---
+
+## Container Endpoints
+
+### List Containers
+`GET /api/containers?projectId=:projectId`
+
+Returns all active container deployments for a project.
+
+---
+
+### Get Container
+`GET /api/containers/:id`
+
+Retrieves details for a specific container deployment.
+
+---
+
+### Create Container
+`POST /api/containers`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "api-service",
+  "image": "registry.swiftbase.io/my-api:v1.2.0",
+  "port": 3000,
+  "replicas": 2,
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000"
+  },
+  "volumeMountPath": "/app/data",
+  "volumeSizeGb": 10
+}
+```
+
+---
+
+### Container Lifecycle Actions
+
+- `POST /api/containers/:id/start`: Start stopped container instances.
+- `POST /api/containers/:id/stop`: Stop active instances without deleting configuration or volumes.
+- `POST /api/containers/:id/restart`: Perform a zero-downtime rolling restart.
+- `DELETE /api/containers/:id`: Terminate container and release allocated network resources.

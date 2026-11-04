@@ -1,0 +1,43 @@
+---
+title: "Service Authentication & Scopes"
+description: "Server-to-server OAuth 2.0 Client Credentials flow and API scope enforcement."
+---
+
+Backend applications authenticate with Swiftbase using the OAuth 2.0 Client Credentials grant.
+
+## How Service Authentication Works
+
+1. During initialization, the Admin SDK sends the `serviceId` and `serviceKey` to `POST /api/auth/service`.
+2. Swiftbase verifies the credentials, checks that the service belongs to the specified `projectId`, and issues a signed JWT access token.
+3. The Admin SDK caches the token and automatically refreshes it before expiry.
+4. All subsequent API calls include the header:
+   ```text
+   Authorization: Bearer <service_token>
+   ```
+
+## Scopes & Least Privilege
+
+Services only have access to operations granted to them:
+
+| Scope | Allowed Operations |
+| :--- | :--- |
+| `db:read` | Execute SELECT queries across database tables |
+| `db:write` | Execute INSERT, UPDATE, DELETE mutations |
+| `db:migrate` | Create, alter, and drop schemas and tables |
+| `identity:read` | Inspect users, roles, and session states |
+| `identity:write` | Create users, assign roles, and trigger password resets |
+| `vault:read` | Retrieve decrypted environment secrets |
+| `storage:admin` | Full control over buckets and objects |
+
+## Verifying Service Tokens
+
+If you operate your own custom microservices, you can verify inbound service tokens locally using public keys (JWKS) or via the verification endpoint:
+
+```typescript
+import { verifyServiceToken } from "swiftbase-admin-sdk";
+
+const isValid = await verifyServiceToken(inboundBearerToken);
+if (!isValid) {
+  throw new Error("Unauthorized service call");
+}
+```

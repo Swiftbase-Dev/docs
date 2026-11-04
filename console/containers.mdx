@@ -1,0 +1,65 @@
+---
+title: "Containers & Deployments"
+description: "Deploying Docker images, configuring ports, persistent storage volumes, firewall rules, and custom domains with SSL."
+---
+
+The **Containers** module allows you to run containerized services alongside your databases and identity resources. You can deploy APIs, background queues, web apps, or third-party open-source tools without managing raw Kubernetes clusters.
+
+## Deploying a Container
+
+1. In the console sidebar, click **Containers**.
+2. Click **Deploy Container**.
+3. Fill out the configuration fields:
+   - **Name**: An identifier for the workload (e.g., `web-frontend` or `image-resizer`).
+   - **Image**: Any public or private Docker image tag (e.g., `nginx:alpine`, `node:20-alpine`, `registry.swiftbase.io/my-image:latest`).
+   - **Replicas**: The desired number of active instances.
+   - **CPU & Memory**: Select resource allocations (e.g., 0.5 vCPU, 512 MB RAM).
+
+## Image Registries & Authentication
+
+Swiftbase can pull images from any OCI-compliant registry:
+
+- **Public Registries**: Docker Hub, GitHub Container Registry (`ghcr.io`), Quay.io.
+- **Swiftbase Built-In Registry**: Push directly to `registry.swiftbase.io/<image-name>:<tag>`.
+- **Private Registries**: Enter your registry endpoint, username, and token/password under **Registry Auth**. Swiftbase securely stores credentials and injects them during image pull.
+
+## Ports & Networking
+
+Containers are isolated from public ingress by default. To expose network services:
+
+- **Port**: The internal port your application listens on inside the container (e.g., `80`, `3000`, `8080`).
+- **Protocol**: HTTP, HTTPS, or TCP.
+- **Ingress URL**: Swiftbase assigns an automatic subdomain under `*.swiftbase.app` (e.g., `my-app.project-slug.swiftbase.app`) with automated SSL termination.
+
+## Persistent Volumes
+
+If your container requires data persistence across restarts (such as file storage, CMS uploads, or embedded databases):
+
+1. In the container configuration, expand the **Volumes** section.
+2. Click **Attach Volume**.
+3. Specify:
+   - **Mount Path**: The absolute path inside the container where data should be stored (e.g., `/data` or `/var/www/uploads`).
+   - **Volume Size**: Storage capacity in gigabytes (e.g., `10Gi`).
+4. Persistent Volume Claims (PVCs) remain intact across container deployments, updates, and restarts.
+
+## Firewall Rules
+
+Control traffic arriving at your containers using declarative firewall rules:
+
+- **Inbound Allow**: Whitelist specific CIDR blocks (e.g., `192.168.1.0/24`) or internal service names.
+- **Rate Limiting**: Prevent abuse by enforcing requests-per-minute thresholds per IP address.
+- **Header Injection**: Automatically inject `X-Forwarded-For` and `X-Forwarded-Proto` headers into upstream requests.
+
+## Custom Domains & Automated SSL
+
+You can map any custom domain to your container:
+
+1. In your container settings, navigate to the **Domains** tab.
+2. Click **Add Custom Domain**.
+3. Enter your domain name (e.g., `api.example.com` or `example.com`).
+4. Swiftbase provides standard DNS configuration values:
+   - **CNAME Record**: Point subdomains to `ingress.swiftbase.app`.
+   - **A Record**: Point apex domains to the Swiftbase ingress IP (`143.244.220.115`).
+5. Click **Verify Domain**.
+
+Swiftbase resolves DNS records and automatically provisions an edge TLS certificate via Cloudflare and Let's Encrypt.

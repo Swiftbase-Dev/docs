@@ -1,0 +1,45 @@
+---
+title: "AI Studio"
+description: "Prompt template engineering, API key management, safety guardrails, and token analytics."
+---
+
+The **AI Studio** module provides managed infrastructure for building LLM-powered features. Manage prompts, rate limits, and safety policies without exposing raw model provider keys in client code.
+
+## Prompt Management
+
+Build and test parameterized prompt templates:
+
+1. In the console sidebar, click **AI** > **Prompts**.
+2. Click **Create Prompt**.
+3. Define the template using double curly-brace variables:
+   ```text
+   Summarize the following document for an audience of {{target_audience}}:
+   
+   {{document_text}}
+   ```
+4. Set default generation parameters:
+   - **Model**: Select from supported foundation models.
+   - **Temperature**: Balance creativity vs deterministic output.
+   - **Max Tokens**: Output length ceiling.
+5. Test your template directly using the test playground before saving.
+
+## API Keys & Scopes
+
+Generate scoped AI keys for client applications:
+
+- **Per-App Keys**: Provision distinct API keys for mobile apps, internal tools, or public website features.
+- **Budget Limits**: Enforce maximum token spend or request rates per key to avoid unexpected billing spikes.
+
+## Content Guardrails
+
+Prevent prompt injection and filter inappropriate outputs:
+
+- **Input Guardrails**: Screen user inputs for forbidden keywords, jailbreak patterns, or sensitive PII.
+- **Output Guardrails**: Verify that model responses match expected JSON schemas or formatting requirements before delivering them to users.
+
+## Usage Analytics
+
+Track consumption in real-time under **AI** > **Usage**:
+- Total prompt and completion tokens consumed per day.
+- Average response latencies.
+- Cost breakdown across models and API keys.

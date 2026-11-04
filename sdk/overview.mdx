@@ -1,0 +1,39 @@
+---
+title: "Client SDK Overview"
+description: "Getting started with the swiftbase-sdk client library for web and mobile applications."
+---
+
+The `swiftbase-sdk` library provides everything needed to authenticate users, query databases, upload files, and invoke AI models from client-side JavaScript, TypeScript, React, Vue, or mobile environments.
+
+## Installation
+
+```bash
+npm install swiftbase-sdk
+```
+
+## Initialization
+
+Initialize the SDK once during application startup:
+
+```typescript
+import { initializeSdk } from "swiftbase-sdk";
+
+initializeSdk({
+  projectId: "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R",
+  apiUrl: "https://api.swiftbase.io", // Default Swiftbase API
+});
+```
+
+### Configuration Options
+
+| Option | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `projectId` | `string` | Yes | The target Swiftbase project identifier. |
+| `apiUrl` | `string` | No | Base API endpoint (defaults to `https://api.swiftbase.io`). |
+
+## Token Management & Persistence
+
+The SDK automatically manages session storage:
+
+- Access tokens are kept in memory and refreshed using rotated tokens before expiration.
+- Custom storage engines (such as `localStorage`, `sessionStorage`, or React Native `AsyncStorage`) can be configured during initialization.

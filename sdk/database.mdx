@@ -1,0 +1,109 @@
+---
+title: "Database Client & QueryBuilder"
+description: "Executing fluent queries, joins, aggregations, declarative schema definitions, and automated migrations."
+---
+
+The `swiftbase-sdk` includes a type-safe `QueryBuilder` and declarative schema engine for working with your databases.
+
+## 1. Querying Data
+
+The `db` interface provides a chainable query builder:
+
+```typescript
+import { db } from "swiftbase-sdk";
+
+// Basic SELECT with filtering and sorting
+const articles = await db
+  .from("articles")
+  .select(["id", "title", "author_id", "view_count"])
+  .where("status", "=", "published")
+  .where("view_count", ">", 100)
+  .orderBy("created_at", "desc")
+  .limit(20)
+  .execute();
+```
+
+### Joins
+
+Join related tables using relational keys:
+
+```typescript
+const postsWithAuthors = await db
+  .from("posts")
+  .select(["posts.id", "posts.title", "users.name as author_name"])
+  .join("users", "posts.author_id", "=", "users.id")
+  .where("posts.published", "=", true)
+  .execute();
+```
+
+### Aggregations & Grouping
+
+Compute totals, counts, and averages:
+
+```typescript
+const stats = await db
+  .from("orders")
+  .select(["status"])
+  .aggregate("count", "*", "total_orders")
+  .aggregate("sum", "amount", "revenue")
+  .groupBy(["status"])
+  .execute();
+```
+
+## 2. Mutations (Insert, Update, Delete)
+
+```typescript
+// Insert
+const newPost = await db
+  .from("posts")
+  .insert({
+    title: "Introducing Swiftbase",
+    content: "Swiftbase unified developer platform...",
+    published: true,
+  });
+
+// Update
+await db
+  .from("posts")
+  .where("id", "=", "post_01HZX87K9Z")
+  .update({
+    content: "Updated post body content...",
+  });
+
+// Delete
+await db
+  .from("posts")
+  .where("id", "=", "post_01HZX87K9Z")
+  .delete();
+```
+
+## 3. Declarative Schemas & Zero-SQL Migrations
+
+Define tables in TypeScript and apply migrations automatically without raw SQL scripts:
+
+```typescript
+import {
+  defineTable,
+  uuid,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+  MigrationRunner,
+} from "swiftbase-sdk";
+
+// Define table schema
+export const usersTable = defineTable("users", {
+  id: uuid("id").primaryKey(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  fullName: varchar("full_name", { length: 255 }),
+  bio: text("bio"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Run migrations on application startup
+const runner = new MigrationRunner();
+await runner.applySchemas([usersTable]);
+console.log("Database schema synchronized successfully");
+```

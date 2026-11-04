@@ -1,0 +1,56 @@
+---
+title: "Database Migrations in CI/CD"
+description: "Applying zero-SQL declarative schema migrations safely during deployments."
+---
+
+The `swiftbase-admin-sdk` allows deployment pipelines to apply declarative schema migrations before new application containers start.
+
+## Running Migrations in Deployment Scripts
+
+```typescript
+import {
+  initializeSdk,
+  defineTable,
+  uuid,
+  varchar,
+  integer,
+  boolean,
+  timestamp,
+  MigrationRunner,
+} from "swiftbase-admin-sdk";
+
+initializeSdk({
+  projectId: process.env.SWIFTBASE_PROJECT_ID!,
+  serviceId: process.env.SWIFTBASE_SERVICE_ID!,
+  serviceKey: process.env.SWIFTBASE_SERVICE_KEY!,
+});
+
+// Define target table states
+const ordersTable = defineTable("orders", {
+  id: uuid("id").primaryKey(),
+  userId: uuid("user_id").notNull(),
+  totalCents: integer("total_cents").notNull(),
+  status: varchar("status", { length: 50 }).default("pending"),
+  isFulfilled: boolean("is_fulfilled").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+async function runDeployMigrations() {
+  console.log("Analyzing schema diff against database...");
+  const runner = new MigrationRunner();
+  const result = await runner.applySchemas([ordersTable]);
+
+  if (result.hasChanges) {
+    console.log(`Successfully applied ${result.operationsApplied} schema changes.`);
+  } else {
+    console.log("Database schema is already up to date.");
+  }
+}
+
+runDeployMigrations().catch((err) => {
+  console.error("Migration failed:", err);
+  process.exit(1);
+});
+```
+
+This ensures that tables, indexes, and column types are synchronized without requiring manual SQL migration scripts.

@@ -1,0 +1,34 @@
+---
+title: "Admin SDK Overview"
+description: "Server-side integration and administrative automation with swiftbase-admin-sdk."
+---
+
+The `swiftbase-admin-sdk` provides elevated, server-side access to Swiftbase infrastructure. Use it in backend APIs, worker services, scheduled daemons, and CI/CD pipelines.
+
+## Installation
+
+```bash
+npm install swiftbase-admin-sdk
+```
+
+## Initialization
+
+Initialize the Admin SDK using a service account credentials generated in **Identity** > **Services**:
+
+```typescript
+import { initializeSdk, app } from "swiftbase-admin-sdk";
+
+initializeSdk({
+  projectId: process.env.SWIFTBASE_PROJECT_ID!,
+  serviceId: process.env.SWIFTBASE_SERVICE_ID!,
+  serviceKey: process.env.SWIFTBASE_SERVICE_KEY!,
+  apiUrl: process.env.SWIFTBASE_API_URL || "https://api.swiftbase.io",
+});
+```
+
+## Key Capabilities
+
+- **Service Authentication**: Automatically executes the OAuth 2.0 Client Credentials flow and rotates service tokens.
+- **Identity Automation**: Programmatically create, update, delete, or inspect customer users, roles, and permissions.
+- **Automated Migrations**: Run declarative database schema migrations in deployment pipelines before launching new container versions.
+- **Direct Vault Access**: Safely read and update project secrets.

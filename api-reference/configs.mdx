@@ -1,0 +1,43 @@
+---
+title: "App Config Endpoints"
+description: "Managing declarative configuration records, publishing drafts, and rolling back versions."
+---
+
+## Config Endpoints
+
+### List Configs
+`GET /api/configs?projectId=:projectId`
+
+### Get Active Config
+`GET /api/configs/:id`
+
+### Create Config
+`POST /api/configs`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "key": "feature-flags",
+  "format": "json",
+  "data": {
+    "betaSearch": true,
+    "maxUploadSizeMb": 50
+  }
+}
+```
+
+### Publish Draft
+`POST /api/configs/:id/publish`
+
+Creates an immutable version snapshot and serves it immediately.
+
+### Rollback to Version
+`POST /api/configs/:id/rollback`
+
+**Request Body:**
+```json
+{
+  "versionNumber": 3
+}
+```

@@ -1,0 +1,59 @@
+---
+title: "Storage & Bucket Endpoints"
+description: "Creating buckets, listing files, generating presigned URLs, and streaming object payloads."
+---
+
+## Bucket Management
+
+### List Buckets
+`GET /api/buckets?projectId=:projectId`
+
+### Create Bucket
+`POST /api/buckets`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "receipts",
+  "visibility": "private"
+}
+```
+
+---
+
+## Presigned URLs
+
+### Generate Download URL
+`POST /api/buckets/urls/download`
+
+**Request Body:**
+```json
+{
+  "bucket": "receipts",
+  "key": "2026/nov/rec-1049.pdf",
+  "expiresIn": 900
+}
+```
+
+### Generate Upload URL
+`POST /api/buckets/urls/upload`
+
+**Request Body:**
+```json
+{
+  "bucket": "receipts",
+  "key": "2026/nov/rec-1050.pdf",
+  "contentType": "application/pdf",
+  "expiresIn": 600
+}
+```
+
+---
+
+## Direct Object Streaming
+
+### Fetch Public Object
+`GET /storage/:bucket/*`
+
+Streams the object directly to the client with `Content-Type`, `ETag`, and `Cache-Control` headers.

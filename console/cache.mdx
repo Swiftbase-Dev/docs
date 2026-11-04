@@ -1,0 +1,32 @@
+---
+title: "Cache & KV Store"
+description: "In-memory key-value caching, TTL expiration, namespace partitioning, and fast data retrieval."
+---
+
+The **Cache** module provides low-latency, in-memory key-value storage. Use it to cache database queries, manage user sessions, coordinate locks, or maintain rate-limiting counters.
+
+## Managing Keys
+
+1. In the console sidebar, click **Cache**.
+2. Click **Add Key**.
+3. Fill out the entry details:
+   - **Key**: String identifier (e.g., `user:session:1049` or `stats:homepage:views`).
+   - **Value**: String, numerical value, or valid JSON payload.
+   - **TTL (Seconds)**: Time-to-live before automatic expiration (leave empty for persistent keys).
+4. Click **Set Key**.
+
+## Namespaces & Partitioning
+
+Organize cache keys using colon-separated namespaces to avoid naming collisions:
+
+- `session:*`: Active authentication sessions.
+- `rate:*`: IP and client request counters.
+- `cache:api:*`: Cached external third-party API responses.
+
+The console provides filtering by namespace prefix, allowing you to monitor and purge specific cache segments without affecting unrelated keys.
+
+## Purging & Flush Operations
+
+- **Key-Level Eviction**: Delete single keys on demand when corresponding database records change.
+- **Prefix Purge**: Delete all keys matching a specific pattern (e.g., `purge cache:api:*`).
+- **Flush Entire Cache**: Instantly clear all in-memory keys across the project with one click.

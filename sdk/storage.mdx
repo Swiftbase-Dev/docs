@@ -1,0 +1,63 @@
+---
+title: "Object Storage"
+description: "Uploading, downloading, listing, and generating presigned URLs with the client SDK."
+---
+
+The `Storage` class in `swiftbase-sdk` provides simple methods for interacting with S3-compatible buckets.
+
+## Uploading Objects
+
+Upload files from browsers or Node environments:
+
+```typescript
+import { Storage } from "swiftbase-sdk";
+
+const storage = new Storage();
+
+// In a browser environment (using HTML File object)
+async function handleFileUpload(file: File) {
+  const result = await storage.upload({
+    bucket: "avatars",
+    key: `users/104/${file.name}`,
+    body: file,
+    contentType: file.type,
+  });
+
+  console.log("Uploaded object URL:", result.url);
+}
+```
+
+## Downloading & Presigned URLs
+
+```typescript
+// Fetch a publicly accessible object URL
+const publicUrl = storage.getPublicUrl("avatars", "users/104/photo.jpg");
+
+// Generate a temporary signed URL for a private bucket
+const signedUrl = await storage.getSignedUrl({
+  bucket: "private-documents",
+  key: "tax_returns/2026.pdf",
+  expiresIn: 300, // 5 minutes
+});
+```
+
+## Listing and Deleting Objects
+
+```typescript
+// List files in a bucket prefix
+const { objects, nextCursor } = await storage.listObjects({
+  bucket: "media",
+  prefix: "uploads/2026/",
+  limit: 50,
+});
+
+for (const obj of objects) {
+  console.log(obj.key, obj.size, obj.lastModified);
+}
+
+// Delete an object
+await storage.deleteObject({
+  bucket: "media",
+  key: "uploads/2026/old-temp-image.png",
+});
+```

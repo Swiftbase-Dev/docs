@@ -1,0 +1,77 @@
+---
+title: "User Authentication"
+description: "Authenticating users with email/password, hosted Universal Login (PKCE), social providers, and token sessions."
+---
+
+The `swiftbase-sdk` client library supports both embedded login forms built in your application and hosted Universal Login flows.
+
+## 1. Embedded Login (Custom UI)
+
+Authenticate users directly using your own UI components:
+
+```typescript
+import { loginWithPassword, isLoggedIn, logout } from "swiftbase-sdk";
+
+// Sign in with email and password
+try {
+  const session = await loginWithPassword({
+    email: "user@example.com",
+    password: "CorrectHorseBatteryStaple!",
+  });
+  console.log("Logged in user:", session.user);
+} catch (error) {
+  console.error("Authentication failed:", error.message);
+}
+
+// Check session status
+if (isLoggedIn()) {
+  console.log("User is currently authenticated");
+}
+
+// Sign out
+await logout();
+```
+
+## 2. Hosted Universal Login with PKCE
+
+For enhanced security and social SSO, redirect users to the hosted login flow:
+
+```typescript
+import { loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
+
+// 1. Trigger login redirect
+function onLoginButtonClick() {
+  loginWithRedirect({
+    redirectUri: window.location.origin + "/callback",
+    provider: "google", // Optional: direct user to specific provider (e.g. google, github)
+  });
+}
+
+// 2. On your callback page (/callback)
+async function onCallbackPageLoad() {
+  try {
+    const session = await handleRedirectCallback();
+    console.log("Authenticated user:", session.user);
+    window.location.replace("/dashboard");
+  } catch (err) {
+    console.error("Callback error:", err);
+  }
+}
+```
+
+## Password Resets
+
+Initiate self-service password recovery:
+
+```typescript
+import { forgotPassword, resetPassword } from "swiftbase-sdk";
+
+// Send reset email
+await forgotPassword({ email: "user@example.com" });
+
+// Submit new password with received token
+await resetPassword({
+  token: "reset_token_from_email",
+  newPassword: "NewSecurePassword123!",
+});
+```

@@ -1,47 +1,77 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Create your Swiftbase account, spin up a project, and query your first database table in under five minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+This guide walks through setting up your first project in Swiftbase, provisioning a database table, and querying it with the Client SDK.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+## 1. Create an Account and Project
 
-## Prerequisites
+1. Navigate to the [Swiftbase Console](https://app.swiftbase.io).
+2. Register an account with your email, GitHub, Google, or Passkey.
+3. On the dashboard, click **Create Project**.
+4. Enter a project name (e.g., `acme-web`) and select your deployment region.
+5. Click **Create**. Swiftbase initializes your isolated tenant, provisioning database instances, identity realms, and default storage buckets.
 
-Before you begin, you must have:
+## 2. Define a Database Table
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+1. In your project sidebar, click **Databases**.
+2. Select your default database (`main`) and click **New Table**.
+3. Set the table name to `posts`.
+4. Add the following columns:
+   - `id`: Type `UUID` (Primary Key, default generated)
+   - `title`: Type `VARCHAR(255)`
+   - `content`: Type `TEXT`
+   - `published`: Type `BOOLEAN` (Default `false`)
+   - `created_at`: Type `TIMESTAMP` (Default `now()`)
+5. Click **Save Table**. Your table is immediately ready and automatically provisioned with REST endpoints.
 
-## Get started
+## 3. Install the Client SDK
 
-<Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+Install the Swiftbase client library in your frontend application:
 
-    ```bash
-    npm install your-package
-    ```
-  </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+```bash
+npm install swiftbase-sdk
+```
 
-    ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+## 4. Initialize and Query
 
-    ```bash
-    your-cli start
-    ```
-  </Step>
-</Steps>
+Create a file named `db.ts` to initialize the client and fetch published posts:
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+```typescript
+import { initializeSdk, db } from "swiftbase-sdk";
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+// Initialize with your project ID and API URL
+initializeSdk({
+  projectId: "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R",
+  apiUrl: "https://api.swiftbase.io",
+});
+
+async function loadPublishedPosts() {
+  const posts = await db
+    .from("posts")
+    .select(["id", "title", "content", "created_at"])
+    .where("published", "=", true)
+    .orderBy("created_at", "desc")
+    .limit(10)
+    .execute();
+
+  console.log("Published posts:", posts);
+}
+
+loadPublishedPosts();
+```
+
+## 5. Insert Records via the Web Console
+
+1. In the console, open your `posts` table and click **Records**.
+2. Click **Add Record**.
+3. Enter a sample title and content, and toggle `published` to `true`.
+4. Click **Insert**.
+5. Rerun your code above. The record will be returned immediately.
+
+## Next Steps
+
+- [Identity & Users](/console/identity): Set up customer authentication and Passkeys.
+- [Container Deployments](/console/containers): Deploy custom services with automatic HTTPS.
+- [Database QueryBuilder](/sdk/database): Explore filters, joins, aggregations, and declarative schema migrations.

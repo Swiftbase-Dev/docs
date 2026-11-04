@@ -1,0 +1,78 @@
+---
+title: "Databases & Analytics"
+description: "Dual-engine storage (OLTP vs OLAP), visual schema designer, auto-generated REST APIs, GraphSQL queries, and automated backups."
+---
+
+Swiftbase provides a dual-engine database architecture designed for modern full-stack applications: transactional workloads (OLTP) and analytical queries (OLAP) live in the same unified system without requiring dual-database ETL pipelines.
+
+## Dual-Engine Architecture
+
+| Feature | OLTP Engine (Transactional) | OLAP Engine (Analytical) |
+| :--- | :--- | :--- |
+| **Primary Use Case** | User accounts, orders, app entities, fast CRUD | Analytics, reporting, clickstreams, time-series |
+| **Storage Model** | Row-oriented | Column-oriented |
+| **Query Latency** | Sub-millisecond index lookups | High-throughput aggregations over millions of rows |
+| **Transaction Model** | ACID compliant | Optimized for append and bulk-load operations |
+
+## Visual Schema Designer
+
+Create and modify database tables directly in the console:
+
+1. Navigate to **Databases** > **Tables**.
+2. Click **New Table**.
+3. Choose the target engine (**OLTP** or **OLAP**).
+4. Define your schema:
+   - **Column Name**: Unique column identifier (e.g., `email`, `amount_cents`).
+   - **Type**: `VARCHAR`, `TEXT`, `INTEGER`, `BIGINT`, `BOOLEAN`, `TIMESTAMP`, `JSON`, `UUID`, or `BLOB`.
+   - **Constraints**: `Primary Key`, `Unique`, `Nullable`, `Default Value`.
+5. Click **Save Schema**. Swiftbase applies declarative migrations without service interruption.
+
+## Auto-Generated REST API Access
+
+Every table automatically exposes production-grade REST endpoints protected by your project's authentication policies:
+
+- `GET /api/databases/tables/:tableId/records`: List and filter records with pagination.
+- `GET /api/databases/tables/:tableId/records/:id`: Fetch a single record by primary key.
+- `POST /api/databases/tables/:tableId/records`: Insert a new record.
+- `PUT /api/databases/tables/:tableId/records/:id`: Update existing record attributes.
+- `DELETE /api/databases/tables/:tableId/records/:id`: Remove a record.
+
+### OpenAPI Documentation
+
+Each database table automatically generates an interactive OpenAPI specification. Click **Docs URL** in the table view to test endpoints directly in your browser with prefilled authentication tokens.
+
+## GraphSQL & Direct SQL Access
+
+In addition to REST endpoints, you can execute SQL queries directly:
+
+- **Web Query Editor**: Run raw SQL statements against both OLTP and OLAP tables directly in the console.
+- **REST SQL Execution**: Submit queries to `POST /api/sql` with parameterized inputs to prevent SQL injection.
+- **GraphSQL**: Query related relational data using JSON payload structures that automatically resolve one-to-many and many-to-one foreign key relationships without manual joins.
+
+## Row-Level Security Rules
+
+Protect tables with declarative security rules:
+
+```json
+{
+  "read": "request.auth != null",
+  "write": "request.auth.uid == resource.data.user_id || 'admin' in request.auth.roles"
+}
+```
+
+Rules are evaluated on every request before query execution, ensuring users can only read or write their own data.
+
+## Environments: Dev vs Production
+
+Databases can be partitioned by environment:
+
+- **Development**: Isolated test data for local testing and CI/CD pipelines.
+- **Production**: High-availability instances with strict read/write access policies and automated backup schedules.
+
+## Snapshots & Backups
+
+Swiftbase safeguards database state through continuous write-ahead logging and point-in-time recovery:
+
+- **Automated Daily Backups**: Managed snapshots taken every 24 hours with configurable retention periods (7 to 90 days).
+- **Manual Snapshots**: Create an on-demand snapshot before running significant migrations or data operations.
+- **One-Click Restore**: Restore snapshots to the active database or spin up a new clone database for inspection.

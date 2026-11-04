@@ -1,0 +1,51 @@
+---
+title: "Account & Projects"
+description: "Managing projects, configuring organization settings, and collaborating with team members."
+---
+
+Projects are the top-level unit of organization in Swiftbase. All databases, containers, identity directories, and storage buckets belong to a project.
+
+## Logging In
+
+You can log into the [Swiftbase Console](https://app.swiftbase.io) using:
+
+- **Email and Password**: Standard authentication with optional TOTP two-factor confirmation.
+- **Passkeys (FIDO2)**: Biometric authentication using Touch ID, Face ID, Windows Hello, or hardware security keys.
+- **Social SSO**: Google, Microsoft, and GitHub OAuth 2.0 logins.
+
+## Creating a Project
+
+1. From the top navigation bar or the home screen, click **New Project**.
+2. Provide a **Project Name** (e.g., `ecommerce-production`).
+3. Select a **Region**. Choose the region closest to your users or your primary infrastructure to minimize latency.
+4. Click **Create Project**.
+
+Swiftbase initializes:
+- An isolated PostgreSQL/DuckDB database cluster.
+- A dedicated identity tenant with OAuth 2.0 endpoints.
+- An encrypted Vault instance for secrets.
+- Default object storage and caching namespaces.
+
+## Inviting Team Members
+
+You can invite collaborators to your project and assign appropriate access levels:
+
+1. In the console sidebar, navigate to **Settings** > **Team Members**.
+2. Click **Invite Member**.
+3. Enter the user's email address.
+4. Select a project role:
+   - **Viewer**: Can view configurations, inspect database records, check uptime metrics, and stream logs. Cannot mutate resources or view raw secrets.
+   - **Editor**: Can deploy containers, run database migrations, upload storage objects, update configurations, and modify secrets.
+   - **Owner**: Full administrative control, including role assignment, project rename, billing management, and project deletion.
+5. Click **Send Invitation**.
+
+The recipient receives an email invitation containing a secure redemption link. Once accepted, they gain immediate access to the project under the selected role.
+
+## Project Settings
+
+Under **Project Settings**, you can configure:
+
+- **Project ID**: The permanent identifier used in SDKs and API calls (e.g., `proj_01HZX87K9Z1X2Y3W4V5U6T7S8R`).
+- **Display Name**: The human-readable name shown in the dashboard.
+- **Audit Logs**: An immutable activity feed recording administrative actions (container restarts, secret rotations, schema updates) with actor timestamps and IP addresses.
+- **Danger Zone**: Project deletion and transfer options. Deleting a project permanently destroys all associated containers, databases, and buckets.

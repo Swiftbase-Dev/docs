@@ -1,0 +1,112 @@
+---
+title: "Identity & Passkey Endpoints"
+description: "OAuth 2.0, OpenID Connect, user logins, and WebAuthn Passkey ceremonies."
+---
+
+## OAuth 2.0 & OIDC Endpoints
+
+### Authorization Endpoint
+`GET /oauth2/authorize`
+
+Initiates the OAuth 2.0 Authorization Code flow with PKCE.
+
+**Query Parameters:**
+- `client_id` (string, required): The target `projectId`.
+- `redirect_uri` (string, required): Whitelisted callback URL.
+- `response_type` (string, required): Must be `code`.
+- `code_challenge` (string, required): SHA-256 PKCE code challenge.
+- `code_challenge_method` (string, required): Must be `S256`.
+- `scope` (string, optional): Requested scopes (e.g., `openid profile email`).
+
+---
+
+### Token Exchange
+`POST /oauth2/token`
+
+Exchanges an authorization code for an access token and refresh token.
+
+**Request Body (application/x-www-form-urlencoded or application/json):**
+```json
+{
+  "grant_type": "authorization_code",
+  "client_id": "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R",
+  "code": "auth_code_xyz123",
+  "redirect_uri": "https://myapp.com/callback",
+  "code_verifier": "raw_pkce_random_verifier"
+}
+```
+
+---
+
+## Authentication Endpoints
+
+### Password Login
+`POST /api/login`
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "UserPassword123!",
+  "projectId": "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "token": "jwt_access_token_here",
+  "refreshToken": "opaque_refresh_token_here",
+  "user": {
+    "id": "usr_01HZX9",
+    "email": "user@example.com",
+    "roles": ["customer"]
+  }
+}
+```
+
+---
+
+## Passkey Endpoints
+
+### Begin Registration
+`POST /api/passkeys/register/options`
+
+Generates a WebAuthn challenge for device enrollment.
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R"
+}
+```
+
+---
+
+### Complete Registration
+`POST /api/passkeys/register/verify`
+
+Validates and stores the public key credential.
+
+**Request Body:**
+```json
+{
+  "name": "My MacBook",
+  "credential": { ... },
+  "projectId": "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R"
+}
+```
+
+---
+
+### Begin Authentication
+`POST /api/passkeys/authenticate/options`
+
+Generates an authentication challenge.
+
+---
+
+### Complete Authentication
+`POST /api/passkeys/authenticate/verify`
+
+Validates the signed assertion and issues a session token.

@@ -1,0 +1,69 @@
+---
+title: "REST API Overview & Standards"
+description: "Authentication headers, base endpoints, pagination, and standardized error formats."
+---
+
+All Swiftbase capabilities are accessible through standard HTTP REST endpoints.
+
+## Base URL
+
+```text
+https://api.swiftbase.io
+```
+
+## Authentication Headers
+
+All requests to private endpoints require an `Authorization` header containing a valid user access token or service account JWT:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+Alternatively, direct service calls can authenticate using:
+
+```text
+X-API-Key: <service_key>
+```
+
+## Response Envelopes & Pagination
+
+List endpoints accept `page` and `limit` query parameters and return a standard pagination envelope:
+
+```json
+{
+  "data": [ ... ],
+  "meta": {
+    "page": 1,
+    "limit": 25,
+    "total": 142,
+    "totalPages": 6
+  }
+}
+```
+
+## Error Formats
+
+Errors follow RFC 7807 problem details:
+
+```json
+{
+  "code": "INVALID_PARAMETERS",
+  "message": "The email address provided is already registered.",
+  "status": 400,
+  "details": {
+    "field": "email"
+  }
+}
+```
+
+### Common HTTP Status Codes
+
+- `200 OK`: Request succeeded.
+- `201 Created`: Resource successfully created.
+- `204 No Content`: Resource deleted or mutation completed without returned data.
+- `400 Bad Request`: Validation failure or missing required fields.
+- `401 Unauthorized`: Missing, expired, or invalid token.
+- `403 Forbidden`: Authenticated user lacks permission or attempted cross-project access.
+- `404 Not Found`: Target resource does not exist.
+- `429 Too Many Requests`: Rate limit threshold exceeded.
+- `500 Internal Error`: Server execution fault.

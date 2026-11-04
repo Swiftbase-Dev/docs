@@ -1,0 +1,25 @@
+---
+title: "Schedules & Cron Jobs"
+description: "Orchestrating background tasks, scheduled webhook triggers, and failure retry policies."
+---
+
+The **Schedules** module allows you to run recurring jobs, maintenance scripts, periodic syncs, and data cleanups using standard cron syntax.
+
+## Creating a Scheduled Job
+
+1. In the console sidebar, click **Schedules**.
+2. Click **Create Schedule**.
+3. Configure the job parameters:
+   - **Name**: A descriptive title (e.g., `daily-invoice-generator` or `cache-warmup`).
+   - **Cron Expression**: Standard 5-field cron schedule (e.g., `0 2 * * *` for 2:00 AM daily, or `*/15 * * * *` for every 15 minutes).
+   - **Target Type**:
+     - **HTTP Webhook**: Calls an external or internal container URL with a specified method (`GET`, `POST`), headers, and body payload.
+     - **Container Job**: Spins up a container task with custom CLI arguments and environment variables.
+   - **Timeout**: Maximum execution duration before the job is terminated (default: 300 seconds).
+4. Click **Create Schedule**.
+
+## Execution History & Retries
+
+- **Execution Logs**: View every execution run, start/end timestamps, HTTP status codes, and output response bodies.
+- **Manual Trigger**: Click **Run Now** to immediately test and trigger a scheduled job outside its regular interval.
+- **Retry Policies**: Configure automatic retries with exponential backoff if a target endpoint returns an HTTP `5xx` error or times out.

@@ -1,0 +1,51 @@
+---
+title: "Architecture & Security"
+description: "How Swiftbase isolates tenants, safeguards credentials, and enforces zero-trust process boundaries."
+---
+
+Swiftbase delivers cloud backend capabilities while enforcing strict tenant boundaries. This document outlines our multi-tenant isolation, process isolation, and authentication security models.
+
+## Multi-Tenant Project Isolation
+
+Every project in Swiftbase represents an autonomous organizational boundary. Resources never cross project boundaries unless explicitly federated.
+
+### 1. Identity and Session Isolation
+
+- **Origin-Scoped Sessions**: Authentication tokens and session cookies are strictly scoped to the origin of the requesting application. Cookies never use broad root-domain wildcards (such as `.swiftbase.io`).
+- **Authorization Endpoint Validation**: When invoking the OAuth 2.0 authorization endpoint (`/oauth2/authorize`), the server verifies that the active session matches the requested `client_id` (representing the project). If there is a mismatch, the user is prompted to authenticate directly into the target project (`prompt=login`).
+- **Token Exchange Verification**: During the code exchange at `/oauth2/token`, the server enforces that the exchanging client matches the authorization code's `clientId`, and that the user's `projectId` strictly matches the token recipient. Cross-tenant exchanges return `401 invalid_client` or `403 access_denied`.
+
+### 2. Database and Storage Segregation
+
+- **Row-Level Rules**: Every table supports declarative access rules evaluated against the authenticated user's JWT context (`request.auth.uid`, `request.auth.roles`).
+- **Database Partitioning**: Projects run on isolated schemas and connection credentials. A database operation executed in Project A cannot query or mutate records belonging to Project B.
+- **S3 Bucket Namespaces**: Object keys are scoped per project. Buckets default to private access with signed URL authorization.
+
+## Authentication Layers
+
+Swiftbase defines distinct actor types to separate administrative management from end-user workloads:
+
+| Actor | Purpose | Authentication Mechanism |
+| :--- | :--- | :--- |
+| **Console User** | Developer or team member managing projects in the web console | OAuth 2.0 + OIDC, email/password, social SSO, or Passkey |
+| **Customer End User** | End user logging into your client web or mobile application | OAuth 2.0 Authorization Code Flow with PKCE, Passkey, or TOTP MFA |
+| **Service Account** | Automated server, CI/CD pipeline, or backend microservice | OAuth 2.0 Client Credentials flow using `serviceId` and `serviceKey` |
+| **Internal Service** | Core Swiftbase subsystems communicating in-cluster | Mutual TLS with short-lived service JWTs validated via JWKS |
+
+## Passkey and WebAuthn Guarantees
+
+Passkeys in Swiftbase conform to the FIDO2 / WebAuthn standard:
+
+- **RP ID Binding**: Challenges and public key credentials are tied to the specific relying party domain (`rpId`).
+- **Origin Validation**: Authentication and registration ceremonies only succeed when initiated from whitelisted origins (the project's custom domains or configured redirect URIs).
+- **Single-Use Challenges**: Cryptographic challenges expire within five minutes and cannot be reused, preventing replay attacks.
+
+## Role-Based Access Control (RBAC)
+
+Swiftbase provides three built-in roles for team members accessing the console:
+
+- **Owner**: Full access, including project deletion, billing management, and team invitations.
+- **Editor**: Can create and modify databases, deploy containers, update configs, and adjust secrets.
+- **Viewer**: Read-only access to browse tables, monitor container health, and view logs.
+
+Customer end users can be assigned custom application roles (such as `admin`, `subscriber`, or `moderator`) with granular permissions assigned directly in the Identity manager.

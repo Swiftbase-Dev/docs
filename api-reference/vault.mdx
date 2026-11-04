@@ -1,0 +1,32 @@
+---
+title: "Vault Secret Endpoints"
+description: "Creating, updating, decrypting, and auditing encrypted environment secrets."
+---
+
+## Vault Operations
+
+### List Secrets (Metadata Only)
+`GET /api/vault/secrets?projectId=:projectId`
+
+Returns key names, creation dates, and descriptions. Values remain masked.
+
+### Set or Rotate Secret
+`POST /api/vault/secrets`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "key": "POSTMARK_API_KEY",
+  "value": "pm_live_xyz89123891",
+  "description": "Transactional email token"
+}
+```
+
+### Delete Secret
+`DELETE /api/vault/secrets/:id`
+
+### Secret Audit Logs
+`GET /api/vault/logs?projectId=:projectId`
+
+Returns immutable audit records of all secret creations, rotations, and decryption events.

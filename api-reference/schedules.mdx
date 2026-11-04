@@ -1,0 +1,34 @@
+---
+title: "Schedule Endpoints"
+description: "Defining cron schedules, triggering manual executions, and inspecting run histories."
+---
+
+## Schedule Operations
+
+### List Schedules
+`GET /api/schedules?projectId=:projectId`
+
+### Create Schedule
+`POST /api/schedules`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "daily-summary-report",
+  "cron": "0 8 * * *",
+  "targetUrl": "https://api-service.myproject.swiftbase.app/jobs/daily-summary",
+  "method": "POST",
+  "timeoutSeconds": 300
+}
+```
+
+### Trigger Execution Immediately
+`POST /api/schedules/:id/run`
+
+Triggers an immediate out-of-band run of the scheduled job.
+
+### Execution History
+`GET /api/schedules/:id/history`
+
+Returns previous execution runs, status codes, and execution run durations.

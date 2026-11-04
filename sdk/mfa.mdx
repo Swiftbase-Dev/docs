@@ -1,0 +1,58 @@
+---
+title: "Multi-Factor Authentication (TOTP)"
+description: "Setting up Time-Based One-Time Passwords, generating QR codes, and validating secondary challenges."
+---
+
+Time-Based One-Time Password (TOTP) adds an extra layer of protection to user accounts.
+
+## Setting Up TOTP
+
+1. Generate a TOTP secret and QR code URI for the active user:
+
+```typescript
+import { setupTotp } from "swiftbase-sdk";
+
+// Call after user logs in
+const totpSetup = await setupTotp();
+// totpSetup returns { secret: string, qrCodeUri: string }
+```
+
+2. Render the `qrCodeUri` as a QR code or display the manual `secret` for the user to scan into Google Authenticator or 1Password.
+
+## Verifying and Activating MFA
+
+Have the user submit a 6-digit code to confirm setup:
+
+```typescript
+import { verifyAndEnableTotp } from "swiftbase-sdk";
+
+const isEnabled = await verifyAndEnableTotp({
+  code: "123456",
+});
+
+if (isEnabled) {
+  console.log("MFA successfully enabled on account");
+}
+```
+
+## Handling MFA Challenges During Login
+
+When an MFA-enabled user logs in with email and password, the initial response requires a secondary TOTP challenge:
+
+```typescript
+import { loginWithPassword, verifyTotpLogin } from "swiftbase-sdk";
+
+const result = await loginWithPassword({
+  email: "user@example.com",
+  password: "password123",
+});
+
+if (result.requiresMfa) {
+  // Prompt user for 6-digit authenticator code
+  const session = await verifyTotpLogin({
+    mfaToken: result.mfaToken,
+    code: "654321",
+  });
+  console.log("Fully authenticated:", session.user);
+}
+```

@@ -1,0 +1,40 @@
+---
+title: "Vault & Secrets"
+description: "Managing encrypted project secrets, API credentials, and secret access audit trails."
+---
+
+The **Vault** module provides secure storage for sensitive credentials, database connection strings, third-party API tokens, and private encryption keys.
+
+## Storing Secrets
+
+1. In the console sidebar, click **Vault**.
+2. Click **Add Secret**.
+3. Fill in the required fields:
+   - **Key**: Uppercase environment variable name (e.g., `STRIPE_SECRET_KEY` or `OPENAI_API_KEY`).
+   - **Value**: Secret plaintext string.
+   - **Description**: Optional note describing the secret's purpose.
+4. Click **Save Secret**.
+
+## Encryption at Rest
+
+- All secret values are encrypted before persistence using AES-256-GCM.
+- Encryption keys are managed independently per project, ensuring no shared keys across tenants.
+- Raw secret values are masked in the console interface by default. Users must have the `Owner` or `Editor` role to reveal secret values.
+
+## Injecting Secrets into Containers
+
+Secrets stored in Vault can be mapped directly into container environment variables:
+
+1. When configuring a container under **Containers** > **Deployments**, open the **Environment Variables** section.
+2. Select **Source: Vault Secret**.
+3. Choose the secret key from the dropdown.
+4. During container startup, Swiftbase decrypts the value in-memory and injects it as an environment variable without writing it to disk.
+
+## Audit Logs
+
+Vault tracks all lifecycle events:
+
+- Who created or rotated a secret.
+- When a secret value was revealed in the console.
+- Timestamp and source IP for each operation.
+- Access alerts if multiple failed attempts to decrypt secrets occur.

@@ -1,0 +1,54 @@
+---
+title: "Domains & Verification Endpoints"
+description: "Mapping custom domains, provisioning SSL certificates, and triggering DNS verification."
+---
+
+## Domain Endpoints
+
+### List Domains
+`GET /api/domains?projectId=:projectId`
+
+Returns all configured custom hostnames for a project.
+
+---
+
+### Add Custom Domain
+`POST /api/domains`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "api.example.com",
+  "containerId": "cnt_01HZX9",
+  "type": "custom"
+}
+```
+
+---
+
+### Verify Domain DNS
+`POST /api/domains/:id/verify`
+
+Queries authoritative DNS resolvers to verify that CNAME or A records point to the Swiftbase ingress.
+
+**Path Parameters:**
+- `id` (string, required): The domain resource identifier.
+
+**Response (200 OK):**
+```json
+{
+  "id": "dom_01M6HMR47DDMFX19EJGBGS7Q37",
+  "name": "api.example.com",
+  "verified": 1,
+  "verifiedAt": "2026-11-03T20:00:00.000Z",
+  "updatedAt": "2026-11-03T20:00:00.000Z"
+}
+```
+
+---
+
+### Delete Domain
+`DELETE /api/domains/:id`
+
+Unbinds the custom hostname from ingress routers and deprovisions the TLS certificate.

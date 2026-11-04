@@ -1,0 +1,23 @@
+---
+title: "Analytics & Insights"
+description: "Traffic volumes, response latency distributions, error rate tracking, and regional visitor origins."
+---
+
+The **Analytics** module provides platform-wide metrics for container traffic, API throughput, and database performance.
+
+## Key Metrics
+
+- **Request Volume**: Aggregate HTTP requests served per second, minute, or hour.
+- **Latency Percentiles**: Track p50, p95, and p99 response times to identify slow backend operations.
+- **Status Code Distribution**: Percentage breakdowns of `2xx` success codes vs `4xx` client errors and `5xx` server faults.
+
+## Regional Visitor Origins
+
+Swiftbase analyzes incoming client connections at edge ingress points:
+
+- **Interactive Choropleth Map**: Displays country-by-country traffic density.
+- **Top Origins**: Ranked breakdown of visitor locations, helping you decide where to provision additional regional containers.
+
+## Exporting Analytics Data
+
+You can query raw time-series metrics directly using the analytics REST endpoints or forward events to third-party monitoring platforms using project webhooks.

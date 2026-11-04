@@ -1,0 +1,38 @@
+---
+title: "Monitoring, Logs & Status Pages"
+description: "Real-time log streaming, automated uptime checks, incident management, and public status pages."
+---
+
+The **Monitoring** module gives you visibility into container health, request latencies, and service availability, along with hosted status pages for your users.
+
+## Real-Time Container Logs
+
+Stream stdout and stderr output directly in your browser:
+
+1. Navigate to **Containers** > select a container > **Logs**.
+2. Filter logs by log level (`info`, `warn`, `error`) or search by text string.
+3. Pause log streaming to inspect error traces or download raw log output.
+
+## Uptime Checks
+
+Swiftbase continuously monitors your endpoints from multiple geographic probe locations:
+
+1. Navigate to **Monitoring** > **Uptime Checks**.
+2. Click **Create Check**.
+3. Configure the check:
+   - **Check Name**: (e.g., `Public API Gateway` or `Landing Page`).
+   - **URL / Host**: The target URL (e.g., `https://api.example.com/healthz`).
+   - **Check Interval**: Frequency (e.g., 30 seconds, 1 minute, 5 minutes).
+   - **Expected Status**: HTTP response code (e.g., `200`).
+   - **Alert Channels**: Configure email notifications or Slack/Discord webhooks when an endpoint fails.
+4. Click **Save Check**.
+
+## Public Status Pages
+
+Communicate downtime and scheduled maintenance with your users:
+
+1. Under **Monitoring**, navigate to **Status Pages**.
+2. Click **Create Status Page**.
+3. Set your company name, custom domain (e.g., `status.example.com`), and theme colors.
+4. Select which uptime checks to display publicly (e.g., `API`, `Website`, `Database`).
+5. Publish scheduled maintenance windows or real-time incident reports with severity badges (`Investigating`, `Identified`, `Monitoring`, `Resolved`).

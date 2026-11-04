@@ -1,0 +1,74 @@
+---
+title: "Passkeys & Passwordless"
+description: "Implementing WebAuthn ceremonies, biometric enrollment, and passwordless logins."
+---
+
+Passkeys provide phishing-resistant, biometric authentication using Touch ID, Face ID, Windows Hello, or hardware security keys.
+
+## Checking Browser Support
+
+Always verify that the current client environment supports WebAuthn:
+
+```typescript
+import { isPasskeySupported } from "swiftbase-sdk";
+
+if (isPasskeySupported()) {
+  // Show "Sign in with Passkey" button
+}
+```
+
+## Registering a Passkey
+
+Enroll a passkey for the currently logged-in user:
+
+```typescript
+import { registerPasskey } from "swiftbase-sdk";
+
+async function enrollUserDevice() {
+  try {
+    const credential = await registerPasskey({
+      name: "MacBook Pro Touch ID", // Optional human-readable label
+    });
+    console.log("Enrolled passkey:", credential.id);
+  } catch (error) {
+    console.error("Passkey registration canceled or failed:", error);
+  }
+}
+```
+
+## Logging In with a Passkey
+
+Authenticate an existing user with a passkey:
+
+```typescript
+import { loginWithPasskey } from "swiftbase-sdk";
+
+async function onPasskeyLogin() {
+  try {
+    // Optionally supply the email or leave blank for autofill / discoverable credentials
+    const session = await loginWithPasskey({
+      email: "user@example.com",
+    });
+    console.log("Welcome back:", session.user.email);
+  } catch (error) {
+    console.error("Passkey login failed:", error);
+  }
+}
+```
+
+## Managing Stored Passkeys
+
+Inspect and remove registered authenticators:
+
+```typescript
+import { listPasskeys, deletePasskey } from "swiftbase-sdk";
+
+// Fetch user's registered keys
+const passkeys = await listPasskeys();
+for (const key of passkeys) {
+  console.log(key.id, key.name, key.createdAt);
+}
+
+// Remove an old or lost credential
+await deletePasskey("cred_01HZX87K9Z1X2Y3W4V5U6T7S8R");
+```

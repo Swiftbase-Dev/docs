@@ -1,0 +1,51 @@
+---
+title: "AI Studio Endpoints"
+description: "OpenAI-compatible chat completions, prompt template execution, and usage metrics."
+---
+
+## OpenAI-Compatible Chat Completions
+`POST /api/ai/v1/chat/completions`
+
+Allows existing OpenAI SDKs and third-party tools to interact directly with Swiftbase-managed models.
+
+**Headers:**
+```text
+Authorization: Bearer <swiftbase_token_or_ai_key>
+```
+
+**Request Body:**
+```json
+{
+  "model": "default",
+  "messages": [
+    { "role": "system", "content": "You are a database architect." },
+    { "role": "user", "content": "When should I use OLAP vs OLTP engines?" }
+  ],
+  "temperature": 0.7,
+  "stream": false
+}
+```
+
+---
+
+## Prompt Template Execution
+`POST /api/ai/prompts/:id/run`
+
+Executes a prompt template created in the AI Studio with dynamic variable substitution.
+
+**Request Body:**
+```json
+{
+  "variables": {
+    "target_audience": "frontend developers",
+    "document_text": "Swiftbase provides instant REST endpoints for DuckDB tables."
+  }
+}
+```
+
+---
+
+## AI Token Usage & Metrics
+`GET /api/ai/usage?projectId=:projectId`
+
+Returns token counts, completion latency percentiles, and request volume partitioned by model and API key.

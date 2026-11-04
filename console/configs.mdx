@@ -1,0 +1,44 @@
+---
+title: "App Config & Environment"
+description: "Declarative application configurations, atomic version publishing, and instant rollbacks."
+---
+
+The **Configs** module allows you to store and manage dynamic application settings without redeploying code. Use it for feature flags, operational thresholds, routing tables, and UI theme definitions.
+
+## Creating a Configuration
+
+1. In the console sidebar, click **Configs**.
+2. Click **Create Config**.
+3. Enter a **Config Key** (e.g., `pricing-matrix` or `mobile-feature-flags`).
+4. Select the format: **JSON** or **YAML**.
+5. Input your initial configuration payload in the integrated editor.
+6. Click **Save as Draft**.
+
+## Drafts vs Published Versions
+
+Swiftbase separates draft changes from live production values:
+
+- **Draft State**: Edits made in the console remain in draft until explicitly published, allowing you to validate changes without affecting live applications.
+- **Publishing**: Click **Publish Version**. Swiftbase creates an immutable version snapshot (e.g., `v1`, `v2`) and immediately serves it to client and server applications.
+
+## Version History & Instant Rollbacks
+
+Every publication creates a permanent record:
+
+1. In the config view, open the **History** tab.
+2. Inspect previous versions, seeing who published the change and the exact diff.
+3. If an issue arises in production, click **Rollback to this Version**. Swiftbase restores the previous configuration state instantly.
+
+## Retrieving Configurations
+
+Applications can fetch live configurations using either SDK:
+
+```typescript
+// Example using swiftbase-sdk
+import { getConfiguration } from "swiftbase-sdk";
+
+const config = await getConfiguration("mobile-feature-flags");
+if (config.enableNewCheckout) {
+  // Show new flow
+}
+```

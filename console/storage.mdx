@@ -1,0 +1,60 @@
+---
+title: "Storage & Buckets"
+description: "S3-compatible object storage, fine-grained bucket visibility, virtual-host URLs, and presigned links."
+---
+
+Swiftbase Storage provides scalable, S3-compatible object storage for user uploads, media files, datasets, and static site assets.
+
+## Creating a Storage Bucket
+
+1. In the console sidebar, click **Storage**.
+2. Click **Create Bucket**.
+3. Enter a **Bucket Name** (e.g., `user-avatars` or `invoices-pdf`). Bucket names must be lowercase and URL-friendly.
+4. Select **Visibility**:
+   - **Public**: Objects are publicly accessible over HTTPS by default (ideal for website imagery, avatars, and assets).
+   - **Private**: Objects require signed URLs or authenticated API tokens to download (ideal for sensitive documents and backups).
+5. Click **Create**.
+
+## Object Management
+
+The built-in file explorer lets you manage objects directly:
+
+- **Uploads**: Drag and drop single files or entire folders.
+- **Directories**: Organize objects using hierarchical folder paths.
+- **Metadata**: Inspect MIME types, file sizes, last-modified dates, and ETag hashes.
+- **Deletions**: Remove individual items or bulk-purge directories.
+
+## Virtual Host Subdomain URLs
+
+Every bucket receives a dedicated virtual-host URL structure for clean asset delivery:
+
+```text
+https://[bucket-name].storage.[project-slug].swiftbase.app/[object-path]
+```
+
+For example, a public bucket named `images` in project `author-sites` serves files at:
+
+```text
+https://images.storage.author-sites.swiftbase.app/profile.jpg
+```
+
+Swiftbase automatically terminates SSL certificates and caches assets across global CDN edge nodes.
+
+## Presigned URLs
+
+For private buckets, your backend can generate temporary presigned URLs using either the client SDK or the REST API:
+
+- **Download URLs**: Allow users to download a private file with an expiration window (e.g., 15 minutes).
+- **Upload URLs**: Allow clients to upload files directly to storage without routing heavy payloads through your backend servers.
+
+```typescript
+// Example using swiftbase-sdk to generate a presigned download URL
+const downloadUrl = await storage.getSignedUrl("invoices", "2026/inv-0492.pdf", {
+  expiresIn: 3600, // 1 hour
+});
+```
+
+## CORS & File Size Limits
+
+- **CORS Policies**: Configure allowed origins, methods (`GET`, `POST`, `PUT`), and headers to enable direct uploads from client-side SPAs.
+- **Upload Limits**: Standard web uploads support up to 100 MB per file. For multi-gigabyte uploads, use chunked S3 multipart uploads.

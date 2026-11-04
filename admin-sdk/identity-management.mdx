@@ -1,0 +1,70 @@
+---
+title: "Programmatic Identity Management"
+description: "Creating, updating, and managing customer users, roles, and permissions using the Admin SDK."
+---
+
+The `swiftbase-admin-sdk` allows your backend services to manage customer accounts, assign roles, and handle provisioning.
+
+## User CRUD Operations
+
+```typescript
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "swiftbase-admin-sdk";
+
+// List users with pagination
+const usersList = await getUsers({ page: 1, limit: 50 });
+console.log(`Total users: ${usersList.total}`);
+
+// Create a new verified user programmatically
+const newUser = await createUser({
+  email: "employee@enterprise.com",
+  password: "TemporaryPassword123!",
+  verified: true,
+  metadata: {
+    department: "Engineering",
+    tier: "enterprise",
+  },
+});
+
+// Update user details
+await updateUser(newUser.id, {
+  metadata: { department: "Infrastructure" },
+});
+
+// Delete user
+await deleteUser(newUser.id);
+```
+
+## Managing Roles & Permissions
+
+```typescript
+import {
+  createRole,
+  assignRole,
+  unassignRole,
+  getRoles,
+} from "swiftbase-admin-sdk";
+
+// Define a new role with specific permissions
+const editorRole = await createRole({
+  name: "editor",
+  description: "Can publish and edit content",
+  permissions: ["posts:create", "posts:edit", "media:upload"],
+});
+
+// Assign the role to a user
+await assignRole({
+  userId: "user_01HZX87K9Z",
+  roleId: editorRole.id,
+});
+
+// Remove a role
+await unassignRole({
+  userId: "user_01HZX87K9Z",
+  roleId: editorRole.id,
+});
+```

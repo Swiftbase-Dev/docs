@@ -1,0 +1,69 @@
+---
+title: "Identity & Access"
+description: "Managing user directories, service accounts, roles, authentication providers, Passkeys, and the Universal Login page."
+---
+
+The **Identity** module provides complete Identity as a Service (IDaaS) for your applications. It allows you to manage customer users, service accounts, authentication providers, and security policies without third-party auth vendors.
+
+## Users Directory
+
+Under **Identity** > **Users**, you can view, create, and manage your application's end users.
+
+- **Creating a User**: Click **Add User**, supply an email and initial password, or send an email invite.
+- **User Attributes**: View user metadata, verification status, assigned roles, and linked authentication identities.
+- **Actions**: Trigger password resets, revoke active sessions, disable accounts, or permanently delete users.
+
+## Service Accounts
+
+Service accounts are non-human identities used by backend applications, daemon processes, and CI/CD pipelines to interact with Swiftbase APIs:
+
+1. Navigate to **Identity** > **Services**.
+2. Click **Create Service**.
+3. Enter a descriptive service name (e.g., `payment-worker` or `deployment-pipeline`).
+4. Select the required **Scopes** (e.g., `db:read`, `db:write`, `storage:admin`).
+5. Click **Create**.
+6. Securely copy the generated `serviceKey`. The key is only displayed once.
+
+In your backend code, authenticate using the `swiftbase-admin-sdk` with this `serviceId` and `serviceKey`.
+
+## Roles and Permissions
+
+Swiftbase supports granular Role-Based Access Control (RBAC):
+
+- **Roles**: Logical groups representing user archetypes (e.g., `admin`, `subscriber`, `editor`).
+- **Permissions**: Atomic rights (e.g., `posts:create`, `billing:view`, `users:manage`).
+- **Assignment**: Roles can be assigned directly to users or services via the console or programmatically through the Admin SDK.
+
+## Authentication Providers
+
+Configure how users authenticate with your application under **Identity** > **Auth Providers**:
+
+- **Email & Password**: Standard password authentication with configurable complexity rules (minimum length, special characters, entropy checks).
+- **Social SSO**: One-click OAuth 2.0 configuration for:
+  - **Google**: Requires Client ID and Client Secret from Google Cloud Console.
+  - **GitHub**: Requires Client ID and Client Secret from GitHub Developer Settings.
+  - **Microsoft**: Requires Application ID and Secret from Azure Active Directory.
+
+## Passkeys (FIDO2 / WebAuthn)
+
+Swiftbase provides native support for passwordless authentication using Passkeys:
+
+- **Supported Formats**: Platform authenticators (Touch ID, Face ID, Windows Hello) and roaming authenticators (YubiKey).
+- **Relying Party Configuration**: Set your primary domain as the Relying Party ID (RP ID).
+- **Origin Scoping**: Passkey requests are validated against configured application origins to prevent phishing attacks.
+
+## Multi-Factor Authentication (TOTP)
+
+Protect accounts with Time-Based One-Time Password (TOTP) two-factor authentication:
+
+- Compatible with Google Authenticator, 1Password, Authy, and Microsoft Authenticator.
+- Can be enforced globally across all users or enabled on a per-user basis.
+- Built-in rate limiting and anti-brute-force safeguards on TOTP verification endpoints.
+
+## Universal Login & Redirect URIs
+
+Swiftbase provides a customizable, hosted Universal Login page for handling authentication flows:
+
+- **Hosted URL**: Available by default at `https://auth.swiftbase.io` or under your own custom domain.
+- **Branding**: Customize your application logo, primary brand color, background styling, and privacy policy links under **Identity** > **Branding**.
+- **Redirect URIs**: Specify whitelisted callback URLs (e.g., `https://myapp.com/callback`) where users are redirected after successful login. Wildcards are restricted to prevent open redirect exploits.

@@ -1,0 +1,47 @@
+---
+title: "Monitoring Endpoints"
+description: "Managing uptime checks, inspecting incident reports, and querying public status pages."
+---
+
+## Uptime Checks
+
+### List Uptime Checks
+`GET /api/monitoring/uptime-checks?projectId=:projectId`
+
+### Create Uptime Check
+`POST /api/monitoring/uptime-checks`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "Production API Health",
+  "url": "https://api.example.com/healthz",
+  "intervalSeconds": 60,
+  "expectedStatusCode": 200,
+  "alertEmails": ["devops@example.com"]
+}
+```
+
+### Delete Check
+`DELETE /api/monitoring/uptime-checks/:id`
+
+---
+
+## Status Pages
+
+### List Status Pages
+`GET /api/monitoring/status-pages?projectId=:projectId`
+
+### Create Status Page
+`POST /api/monitoring/status-pages`
+
+**Request Body:**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "title": "Acme Status",
+  "customDomain": "status.example.com",
+  "uptimeCheckIds": ["chk_01HZX9", "chk_01HZX8"]
+}
+```

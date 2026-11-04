@@ -1,0 +1,45 @@
+---
+title: "AI Studio Client"
+description: "Invoking LLM chat completions and running managed prompt templates from client applications."
+---
+
+The `ai` module in `swiftbase-sdk` lets you interact with AI models without managing third-party provider accounts or embedding raw API keys in client code.
+
+## Chat Completions
+
+Send conversational messages and receive structured or streaming responses:
+
+```typescript
+import { ai } from "swiftbase-sdk";
+
+const response = await ai.chat({
+  model: "default", // Uses your project's configured foundation model
+  messages: [
+    { role: "system", content: "You are a concise technical writing assistant." },
+    { role: "user", content: "Explain DuckDB columnar storage in two sentences." },
+  ],
+  temperature: 0.7,
+});
+
+console.log("Model response:", response.choices[0].message.content);
+```
+
+## Running Prompt Templates
+
+Execute prompt templates created in the AI Studio by ID:
+
+```typescript
+import { ai } from "swiftbase-sdk";
+
+const result = await ai.runPrompt({
+  promptId: "prompt_01HZX87K9Z1X2Y3W4V",
+  variables: {
+    target_audience: "software engineers",
+    document_text: "Swiftbase manages multi-tenant databases and container workloads...",
+  },
+});
+
+console.log("Output:", result.content);
+```
+
+All invocations automatically enforce rate limits and safety guardrails configured in the console.

@@ -1,0 +1,38 @@
+---
+title: "Configs & Vault Automation"
+description: "Reading and updating configurations and decrypted secrets from backend services."
+---
+
+The `swiftbase-admin-sdk` provides methods for reading and publishing application configurations and accessing encrypted secrets.
+
+## Managing Configurations
+
+```typescript
+import { getConfiguration, updateConfiguration } from "swiftbase-admin-sdk";
+
+// Fetch active published configuration
+const config = await getConfiguration("payment-gateway-settings");
+console.log("Stripe currency:", config.defaultCurrency);
+
+// Update configuration and publish immediately
+await updateConfiguration("payment-gateway-settings", {
+  defaultCurrency: "USD",
+  supportedPaymentMethods: ["card", "apple_pay", "google_pay"],
+  publishImmediately: true,
+});
+```
+
+## Reading Encrypted Secrets at Startup
+
+In container entry points or cloud worker scripts, fetch secrets stored in Vault:
+
+```typescript
+import { getSecret } from "swiftbase-admin-sdk";
+
+async function bootService() {
+  const stripeKey = await getSecret("STRIPE_SECRET_KEY");
+  const webhookSecret = await getSecret("STRIPE_WEBHOOK_SECRET");
+
+  // Initialize service with decrypted credentials
+}
+```
