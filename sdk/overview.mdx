@@ -18,18 +18,19 @@ Initialize the SDK once during application startup:
 ```typescript
 import { initializeSdk } from "swiftbase-sdk";
 
-initializeSdk({
-  projectId: "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R",
-  apiUrl: "https://api.swiftbase.io", // Default Swiftbase API
+initializeSdk("proj_01HZX87K9Z1X2Y3W4V5U6T7S8R", {
+  baseUrl: "https://api.swiftbase.io", // Default Swiftbase API
+  authWebUrl: "https://auth.swiftbase.io", // Default Universal Login URL
 });
 ```
 
 ### Configuration Options
 
-| Option | Type | Required | Description |
+| Parameter / Option | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `projectId` | `string` | Yes | The target Swiftbase project identifier. |
-| `apiUrl` | `string` | No | Base API endpoint (defaults to `https://api.swiftbase.io`). |
+| `projectId` | `string` | Yes | First positional argument: target Swiftbase project identifier. |
+| `options.baseUrl` | `string` | No | Base API endpoint (defaults to `https://api.swiftbase.io`). |
+| `options.authWebUrl` | `string` | No | Universal Login web interface URL (defaults to `https://auth.swiftbase.io`). |
 
 ## Token Management & Persistence
 

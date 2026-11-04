@@ -10,20 +10,25 @@ The `swiftbase-admin-sdk` allows deployment pipelines to apply declarative schem
 ```typescript
 import {
   initializeSdk,
+  login,
+  db,
   defineTable,
   uuid,
   varchar,
   integer,
   boolean,
   timestamp,
-  MigrationRunner,
 } from "swiftbase-admin-sdk";
 
-initializeSdk({
-  projectId: process.env.SWIFTBASE_PROJECT_ID!,
+// Initialize with project ID and service credentials
+initializeSdk(process.env.SWIFTBASE_PROJECT_ID!, {
   serviceId: process.env.SWIFTBASE_SERVICE_ID!,
   serviceKey: process.env.SWIFTBASE_SERVICE_KEY!,
+  baseUrl: process.env.SWIFTBASE_API_URL || "https://api.swiftbase.io",
 });
+
+// Authenticate service
+await login();
 
 // Define target table states
 const ordersTable = defineTable("orders", {
@@ -37,11 +42,10 @@ const ordersTable = defineTable("orders", {
 
 async function runDeployMigrations() {
   console.log("Analyzing schema diff against database...");
-  const runner = new MigrationRunner();
-  const result = await runner.applySchemas([ordersTable]);
+  const result = await db("main").migrate("v1_deploy_orders", [ordersTable]);
 
-  if (result.hasChanges) {
-    console.log(`Successfully applied ${result.operationsApplied} schema changes.`);
+  if (result.appliedCount > 0) {
+    console.log(`Successfully applied ${result.appliedCount} schema operations in ${result.durationMs}ms:`, result.steps);
   } else {
     console.log("Database schema is already up to date.");
   }

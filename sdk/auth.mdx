@@ -14,11 +14,11 @@ import { loginWithPassword, isLoggedIn, logout } from "swiftbase-sdk";
 
 // Sign in with email and password
 try {
-  const session = await loginWithPassword({
+  const user = await loginWithPassword({
     email: "user@example.com",
     password: "CorrectHorseBatteryStaple!",
   });
-  console.log("Logged in user:", session.user);
+  console.log("Logged in user:", user);
 } catch (error) {
   console.error("Authentication failed:", error.message);
 }
@@ -34,7 +34,7 @@ await logout();
 
 ## 2. Hosted Universal Login with PKCE
 
-For enhanced security and social SSO, redirect users to the hosted login flow:
+For enhanced security, social SSO, and multi-factor authentication, redirect users to the hosted login flow:
 
 ```typescript
 import { loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
@@ -43,15 +43,15 @@ import { loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
 function onLoginButtonClick() {
   loginWithRedirect({
     redirectUri: window.location.origin + "/callback",
-    provider: "google", // Optional: direct user to specific provider (e.g. google, github)
+    prompt: "login", // Optional: force login prompt
   });
 }
 
 // 2. On your callback page (/callback)
 async function onCallbackPageLoad() {
   try {
-    const session = await handleRedirectCallback();
-    console.log("Authenticated user:", session.user);
+    const user = await handleRedirectCallback();
+    console.log("Authenticated user:", user);
     window.location.replace("/dashboard");
   } catch (err) {
     console.error("Callback error:", err);

@@ -13,17 +13,20 @@ npm install swiftbase-admin-sdk
 
 ## Initialization
 
-Initialize the Admin SDK using a service account credentials generated in **Identity** > **Services**:
+Initialize the Admin SDK using service account credentials generated in **Identity** > **Services**:
 
 ```typescript
-import { initializeSdk, app } from "swiftbase-admin-sdk";
+import { initializeSdk, login } from "swiftbase-admin-sdk";
 
-initializeSdk({
-  projectId: process.env.SWIFTBASE_PROJECT_ID!,
+// Initialize with project ID and service credentials
+initializeSdk(process.env.SWIFTBASE_PROJECT_ID!, {
   serviceId: process.env.SWIFTBASE_SERVICE_ID!,
   serviceKey: process.env.SWIFTBASE_SERVICE_KEY!,
-  apiUrl: process.env.SWIFTBASE_API_URL || "https://api.swiftbase.io",
+  baseUrl: process.env.SWIFTBASE_API_URL || "https://api.swiftbase.io",
 });
+
+// Authenticate the service
+await login();
 ```
 
 ## Key Capabilities

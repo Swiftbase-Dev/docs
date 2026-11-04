@@ -5,8 +5,10 @@ description: "Setting, getting, and evicting in-memory key-value data via REST."
 
 ## Cache Operations
 
-### Get Key
-`GET /api/cache/:key?projectId=:projectId`
+### List Keys & Stats
+`GET /api/cache?projectId=:projectId`
+
+Returns the list of keys matching the project along with memory and connection stats.
 
 ### Set Key
 `POST /api/cache`
@@ -16,21 +18,23 @@ description: "Setting, getting, and evicting in-memory key-value data via REST."
 {
   "projectId": "proj_01HZX87K9Z",
   "key": "session:usr_1049",
-  "value": { "role": "admin", "ip": "192.168.1.1" },
-  "ttlSeconds": 3600
+  "value": "{\"role\":\"admin\",\"ip\":\"192.168.1.1\"}",
+  "ttl": 3600
 }
 ```
 
 ### Delete Key
-`DELETE /api/cache/:key?projectId=:projectId`
+`DELETE /api/cache?projectId=:projectId&key=:key`
 
-### Flush Prefix or Entire Cache
-`POST /api/cache/flush`
+Deletes a single key by query parameters.
+
+### Bulk Delete Keys
+`POST /api/cache/bulk-delete`
 
 **Request Body:**
 ```json
 {
   "projectId": "proj_01HZX87K9Z",
-  "prefix": "session:*"
+  "keys": ["session:usr_1049", "temp:data"]
 }
 ```

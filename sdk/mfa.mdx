@@ -1,58 +1,43 @@
 ---
 title: "Multi-Factor Authentication (TOTP)"
-description: "Setting up Time-Based One-Time Passwords, generating QR codes, and validating secondary challenges."
+description: "Configuring TOTP MFA policies and handling secondary authentication challenges via Universal Login."
 ---
 
-Time-Based One-Time Password (TOTP) adds an extra layer of protection to user accounts.
+Time-Based One-Time Password (TOTP) adds an extra layer of protection to user accounts in Swiftbase.
 
-## Setting Up TOTP
+## Enforcement Architecture
 
-1. Generate a TOTP secret and QR code URI for the active user:
+In Swiftbase, Multi-Factor Authentication is enforced at the project identity layer and handled automatically by the hosted **Universal Login** service:
+
+1. **Project Policy Configuration**:
+   - In the Swiftbase Console under **Identity > Settings**, administrators can enable `totp_enabled` and optionally toggle `totp_required`.
+   - When `totp_required` is enabled, users must register an authenticator app (Google Authenticator, 1Password, Authy) upon first sign-in.
+
+2. **Universal Login Challenge Flow**:
+   - Client applications initiate the standard OAuth 2.0 PKCE flow with `loginWithRedirect()`.
+   - The user enters their email and password on the Universal Login interface.
+   - If the project requires TOTP and the user has not configured it, the interface presents an enrollment QR code and requires a 6-digit verification code.
+   - For users with TOTP already enrolled, Universal Login prompts for the current 6-digit code before issuing the authorization code back to the client application's `redirectUri`.
+
+## Application Integration
+
+Because MFA is handled securely on the hosted Universal Login page, client applications do not need to implement custom TOTP challenge dialogs or manage cryptographic secrets in frontend code.
+
+Simply initialize the SDK and invoke `loginWithRedirect`:
 
 ```typescript
-import { setupTotp } from "swiftbase-sdk";
+import { initializeSdk, loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
 
-// Call after user logs in
-const totpSetup = await setupTotp();
-// totpSetup returns { secret: string, qrCodeUri: string }
-```
-
-2. Render the `qrCodeUri` as a QR code or display the manual `secret` for the user to scan into Google Authenticator or 1Password.
-
-## Verifying and Activating MFA
-
-Have the user submit a 6-digit code to confirm setup:
-
-```typescript
-import { verifyAndEnableTotp } from "swiftbase-sdk";
-
-const isEnabled = await verifyAndEnableTotp({
-  code: "123456",
+// Initialize with project configuration
+initializeSdk("proj_01HZX87K9Z1X2Y3W4V5U6T7S8R", {
+  baseUrl: "https://api.swiftbase.io",
+  authWebUrl: "https://auth.swiftbase.io",
 });
 
-if (isEnabled) {
-  console.log("MFA successfully enabled on account");
-}
-```
-
-## Handling MFA Challenges During Login
-
-When an MFA-enabled user logs in with email and password, the initial response requires a secondary TOTP challenge:
-
-```typescript
-import { loginWithPassword, verifyTotpLogin } from "swiftbase-sdk";
-
-const result = await loginWithPassword({
-  email: "user@example.com",
-  password: "password123",
+// Trigger login with MFA challenge handled seamlessly
+loginWithRedirect({
+  redirectUri: window.location.origin + "/callback",
 });
-
-if (result.requiresMfa) {
-  // Prompt user for 6-digit authenticator code
-  const session = await verifyTotpLogin({
-    mfaToken: result.mfaToken,
-    code: "654321",
-  });
-  console.log("Fully authenticated:", session.user);
-}
 ```
+
+When the user completes their password and TOTP challenge, they are redirected back to your application where `handleRedirectCallback()` exchanges the authorization code for an authenticated session.

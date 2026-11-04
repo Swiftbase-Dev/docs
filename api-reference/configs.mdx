@@ -1,6 +1,6 @@
 ---
 title: "App Config Endpoints"
-description: "Managing declarative configuration records, publishing drafts, and rolling back versions."
+description: "Managing declarative configuration records, publishing drafts, and reviewing version history."
 ---
 
 ## Config Endpoints
@@ -8,7 +8,7 @@ description: "Managing declarative configuration records, publishing drafts, and
 ### List Configs
 `GET /api/configs?projectId=:projectId`
 
-### Get Active Config
+### Get Config by ID
 `GET /api/configs/:id`
 
 ### Create Config
@@ -18,26 +18,52 @@ description: "Managing declarative configuration records, publishing drafts, and
 ```json
 {
   "projectId": "proj_01HZX87K9Z",
-  "key": "feature-flags",
-  "format": "json",
-  "data": {
-    "betaSearch": true,
-    "maxUploadSizeMb": 50
-  }
+  "name": "Feature Flags",
+  "description": "Dynamic feature gates and limits",
+  "tags": ["production", "client"],
+  "config": "{\"betaSearch\":true,\"maxUploadSizeMb\":50}"
 }
 ```
 
-### Publish Draft
-`POST /api/configs/:id/publish`
-
-Creates an immutable version snapshot and serves it immediately.
-
-### Rollback to Version
-`POST /api/configs/:id/rollback`
+### Update Config Metadata
+`PUT /api/configs/:id`
 
 **Request Body:**
 ```json
 {
-  "versionNumber": 3
+  "name": "Updated Feature Flags",
+  "description": "Updated description",
+  "tags": ["production"]
 }
 ```
+
+### Update Config Data
+`PUT /api/configs/:id/data`
+
+**Request Body:**
+```json
+{
+  "config": "{\"betaSearch\":false,\"maxUploadSizeMb\":100}"
+}
+```
+
+### Publish Config Version
+`POST /api/configs/:id/publish`
+
+**Request Body:**
+```json
+{
+  "message": "Promote v2 limits to production",
+  "restartContainers": true
+}
+```
+
+Creates an immutable snapshot version and optionally restarts connected containers to reload environment variables.
+
+### Version History
+`GET /api/configs/:id/history`
+
+Returns previous published versions, timestamps, and commit messages.
+
+### Delete Config
+`DELETE /api/configs/:id`

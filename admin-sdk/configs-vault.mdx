@@ -1,38 +1,39 @@
 ---
-title: "Configs & Vault Automation"
-description: "Reading and updating configurations and decrypted secrets from backend services."
+title: "Project Configuration & Vault Access"
+description: "Managing project-wide auth policies and accessing encrypted environment secrets."
 ---
 
-The `swiftbase-admin-sdk` provides methods for reading and publishing application configurations and accessing encrypted secrets.
+The `swiftbase-admin-sdk` provides administrative methods for reading and updating project authentication settings, social identity providers, and branding configurations.
 
-## Managing Configurations
+## Project Authentication Configurations
+
+Manage tenant-wide identity settings programmatically:
 
 ```typescript
 import { getConfiguration, updateConfiguration } from "swiftbase-admin-sdk";
 
-// Fetch active published configuration
-const config = await getConfiguration("payment-gateway-settings");
-console.log("Stripe currency:", config.defaultCurrency);
+const projectId = "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R";
 
-// Update configuration and publish immediately
-await updateConfiguration("payment-gateway-settings", {
-  defaultCurrency: "USD",
-  supportedPaymentMethods: ["card", "apple_pay", "google_pay"],
-  publishImmediately: true,
+// Fetch current project identity configuration
+const config = await getConfiguration(projectId);
+console.log("Allowed redirect URIs:", config.redirect_uris);
+console.log("TOTP required:", config.totp_required);
+
+// Update configuration policies
+await updateConfiguration(projectId, {
+  allow_registration: true,
+  totp_enabled: true,
+  totp_required: false,
+  passkeys_enabled: true,
+  primary_color: "#6366f1",
+  redirect_uris: ["https://app.example.com/callback"],
 });
 ```
 
-## Reading Encrypted Secrets at Startup
+## App Configs & Secrets (Vault)
 
-In container entry points or cloud worker scripts, fetch secrets stored in Vault:
+Application feature flags, dynamic configuration schemas, and encrypted Vault secrets are managed via the Swiftbase REST API and runtime container injections:
 
-```typescript
-import { getSecret } from "swiftbase-admin-sdk";
-
-async function bootService() {
-  const stripeKey = await getSecret("STRIPE_SECRET_KEY");
-  const webhookSecret = await getSecret("STRIPE_WEBHOOK_SECRET");
-
-  // Initialize service with decrypted credentials
-}
-```
+- **App Configs**: Read and update published schemas via `GET /api/configs/:id` and `POST /api/configs/:id/publish`.
+- **Encrypted Secrets (Vault)**: Store credentials, private keys, and API tokens securely in the Swiftbase Console or via `POST /api/vault/secrets`.
+- **Automatic Container Injection**: Secrets assigned to a container deployment are automatically decrypted and injected as standard environment variables (`process.env.MY_SECRET`) at container runtime, eliminating the need to make runtime API requests to read credentials.

@@ -1,34 +1,42 @@
 ---
 title: "Schedule Endpoints"
-description: "Defining cron schedules, triggering manual executions, and inspecting run histories."
+description: "Defining cron schedules, configuring HTTP targets, and managing recurring executions."
 ---
 
 ## Schedule Operations
 
 ### List Schedules
-`GET /api/schedules?projectId=:projectId`
+`GET /api/scheduler/schedules?projectId=:projectId`
+
+### Get Schedule by ID
+`GET /api/scheduler/schedules/:id`
 
 ### Create Schedule
-`POST /api/schedules`
+`POST /api/scheduler/schedules`
 
 **Request Body:**
 ```json
 {
   "projectId": "proj_01HZX87K9Z",
   "name": "daily-summary-report",
+  "description": "Trigger daily summary generation",
   "cron": "0 8 * * *",
-  "targetUrl": "https://api-service.myproject.swiftbase.app/jobs/daily-summary",
+  "timezone": "UTC",
+  "containerId": "01HZX87K9Z1X2Y3W4V5U6T7S8R",
   "method": "POST",
-  "timeoutSeconds": 300
+  "path": "/jobs/daily-summary",
+  "headers": [{ "key": "Authorization", "value": "Bearer secret_token" }],
+  "body": "{\"scope\":\"all\"}",
+  "active": true
 }
 ```
 
-### Trigger Execution Immediately
-`POST /api/schedules/:id/run`
+### Update Schedule
+`PUT /api/scheduler/schedules/:id`
 
-Triggers an immediate out-of-band run of the scheduled job.
+Updates schedule details, cron timing, HTTP parameters, or container targets.
 
-### Execution History
-`GET /api/schedules/:id/history`
+### Delete Schedule
+`DELETE /api/scheduler/schedules/:id`
 
-Returns previous execution runs, status codes, and execution run durations.
+Removes the recurring schedule.

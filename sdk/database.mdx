@@ -3,24 +3,39 @@ title: "Database Client & QueryBuilder"
 description: "Executing fluent queries, joins, aggregations, declarative schema definitions, and automated migrations."
 ---
 
-The `swiftbase-sdk` includes a type-safe `QueryBuilder` and declarative schema engine for working with your databases.
+The `swiftbase-sdk` includes a type-safe `QueryBuilder` and declarative schema engine for working with your databases. The client supports both REST execution and persistent WebSocket streaming.
 
 ## 1. Querying Data
 
-The `db` interface provides a chainable query builder:
+The `db` interface is a callable factory taking the database name, which returns a table selector: `db(databaseName)(tableName)`.
 
 ```typescript
 import { db } from "swiftbase-sdk";
 
 // Basic SELECT with filtering and sorting
-const articles = await db
-  .from("articles")
-  .select(["id", "title", "author_id", "view_count"])
-  .where("status", "=", "published")
+const result = await db("main")("articles")
+  .select("id", "title", "author_id", "view_count")
+  .where("status", "published") // equals comparison
   .where("view_count", ">", 100)
   .orderBy("created_at", "desc")
   .limit(20)
   .execute();
+
+console.log("Articles:", result.data);
+console.log("Total count:", result.count);
+```
+
+### Unpacking a Single Record
+
+Use `.first()` to automatically limit to 1 and unpack the first row:
+
+```typescript
+const user = await db("main")("users")
+  .select("id", "email", "full_name")
+  .where("id", "user_01HZX87K9Z")
+  .first();
+
+console.log("User:", user);
 ```
 
 ### Joins
@@ -28,68 +43,86 @@ const articles = await db
 Join related tables using relational keys:
 
 ```typescript
-const postsWithAuthors = await db
-  .from("posts")
-  .select(["posts.id", "posts.title", "users.name as author_name"])
+const postsWithAuthors = await db("main")("posts")
+  .select("posts.id", "posts.title", "users.name as author_name")
   .join("users", "posts.author_id", "=", "users.id")
-  .where("posts.published", "=", true)
+  .where("posts.published", true)
   .execute();
 ```
 
 ### Aggregations & Grouping
 
-Compute totals, counts, and averages:
+Compute counts, sums, minimums, maximums, and averages:
 
 ```typescript
-const stats = await db
-  .from("orders")
-  .select(["status"])
-  .aggregate("count", "*", "total_orders")
-  .aggregate("sum", "amount", "revenue")
-  .groupBy(["status"])
+const stats = await db("main")("orders")
+  .select("status")
+  .count("*", "total_orders")
+  .sum("amount", { as: "revenue" })
+  .groupBy("status")
   .execute();
 ```
 
-## 2. Mutations (Insert, Update, Delete)
+## 2. Mutations (Insert, Update, Delete, Upsert)
 
 ```typescript
 // Insert
-const newPost = await db
-  .from("posts")
+await db("main")("posts")
   .insert({
     title: "Introducing Swiftbase",
     content: "Swiftbase unified developer platform...",
     published: true,
-  });
+  })
+  .execute();
 
 // Update
-await db
-  .from("posts")
-  .where("id", "=", "post_01HZX87K9Z")
+await db("main")("posts")
+  .where("id", "post_01HZX87K9Z")
   .update({
     content: "Updated post body content...",
-  });
+  })
+  .execute();
 
 // Delete
-await db
-  .from("posts")
-  .where("id", "=", "post_01HZX87K9Z")
-  .delete();
+await db("main")("posts")
+  .where("id", "post_01HZX87K9Z")
+  .delete()
+  .execute();
+
+// Upsert with onConflict
+await db("main")("settings")
+  .insert({ key: "theme", value: "dark" })
+  .onConflict("key")
+  .merge({ value: "dark" })
+  .execute();
 ```
 
-## 3. Declarative Schemas & Zero-SQL Migrations
+## 3. Realtime Subscriptions
+
+Subscribe to table mutations in real-time over WebSocket:
+
+```typescript
+const unsubscribe = db("main")("posts").listen((change) => {
+  console.log(`Event: ${change.event}`, change.data);
+});
+
+// To stop listening:
+// unsubscribe();
+```
+
+## 4. Declarative Schemas & Zero-SQL Migrations
 
 Define tables in TypeScript and apply migrations automatically without raw SQL scripts:
 
 ```typescript
 import {
+  db,
   defineTable,
   uuid,
   varchar,
   text,
   boolean,
   timestamp,
-  MigrationRunner,
 } from "swiftbase-sdk";
 
 // Define table schema
@@ -102,8 +135,7 @@ export const usersTable = defineTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Run migrations on application startup
-const runner = new MigrationRunner();
-await runner.applySchemas([usersTable]);
+// Apply migration via db("main").migrate(name, tables, options)
+await db("main").migrate("v1_create_users", [usersTable]);
 console.log("Database schema synchronized successfully");
 ```

@@ -41,22 +41,20 @@ Create a file named `db.ts` to initialize the client and fetch published posts:
 ```typescript
 import { initializeSdk, db } from "swiftbase-sdk";
 
-// Initialize with your project ID and API URL
-initializeSdk({
-  projectId: "proj_01HZX87K9Z1X2Y3W4V5U6T7S8R",
-  apiUrl: "https://api.swiftbase.io",
+// Initialize with your project ID and options
+initializeSdk("proj_01HZX87K9Z1X2Y3W4V5U6T7S8R", {
+  baseUrl: "https://api.swiftbase.io",
 });
 
 async function loadPublishedPosts() {
-  const posts = await db
-    .from("posts")
-    .select(["id", "title", "content", "created_at"])
-    .where("published", "=", true)
+  const result = await db("main")("posts")
+    .select("id", "title", "content", "created_at")
+    .where("published", true)
     .orderBy("created_at", "desc")
     .limit(10)
     .execute();
 
-  console.log("Published posts:", posts);
+  console.log("Published posts:", result.data);
 }
 
 loadPublishedPosts();

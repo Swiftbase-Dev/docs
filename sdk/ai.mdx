@@ -7,18 +7,19 @@ The `ai` module in `swiftbase-sdk` lets you interact with AI models without mana
 
 ## Chat Completions
 
-Send conversational messages and receive structured or streaming responses:
+Send conversational messages and receive completions matching the OpenAI-compatible schema:
 
 ```typescript
 import { ai } from "swiftbase-sdk";
 
-const response = await ai.chat({
-  model: "default", // Uses your project's configured foundation model
+const response = await ai.chat.completions.create({
+  model: "gemini-3.5-flash-lite", // Default model if omitted
   messages: [
     { role: "system", content: "You are a concise technical writing assistant." },
     { role: "user", content: "Explain DuckDB columnar storage in two sentences." },
   ],
   temperature: 0.7,
+  max_tokens: 500,
 });
 
 console.log("Model response:", response.choices[0].message.content);
@@ -26,20 +27,20 @@ console.log("Model response:", response.choices[0].message.content);
 
 ## Running Prompt Templates
 
-Execute prompt templates created in the AI Studio by ID:
+Execute prompt templates managed in the AI Studio by their ID:
 
 ```typescript
 import { ai } from "swiftbase-sdk";
 
-const result = await ai.runPrompt({
-  promptId: "prompt_01HZX87K9Z1X2Y3W4V",
-  variables: {
+const result = await ai.prompts.run("prompt_01HZX87K9Z1X2Y3W4V", {
+  inputs: {
     target_audience: "software engineers",
     document_text: "Swiftbase manages multi-tenant databases and container workloads...",
   },
+  temperature: 0.5,
 });
 
 console.log("Output:", result.content);
 ```
 
-All invocations automatically enforce rate limits and safety guardrails configured in the console.
+All invocations automatically enforce rate limits and project quotas configured in the console.

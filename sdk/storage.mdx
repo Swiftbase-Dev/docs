@@ -1,63 +1,88 @@
 ---
 title: "Object Storage"
-description: "Uploading, downloading, listing, and generating presigned URLs with the client SDK."
+description: "Uploading, downloading, and listing objects with the S3-compatible client SDK."
 ---
 
-The `Storage` class in `swiftbase-sdk` provides simple methods for interacting with S3-compatible buckets.
+The `Storage` class in `swiftbase-sdk` provides an S3-compatible interface for uploading, downloading, listing, and deleting objects within your project buckets.
 
-## Uploading Objects
+## Initializing Storage
 
-Upload files from browsers or Node environments:
+Instantiate `Storage` with target bucket settings:
 
 ```typescript
 import { Storage } from "swiftbase-sdk";
 
-const storage = new Storage();
+const avatars = new Storage({
+  bucket: "avatars",
+});
+```
 
-// In a browser environment (using HTML File object)
+### Options
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `bucket` | `string` | Yes | Target storage bucket name. |
+| `endpoint` | `string` | No | Custom S3 endpoint (defaults to `<baseUrl>/s3`). |
+| `region` | `string` | No | S3 region (defaults to `us-east-1`). |
+| `accessKeyId` | `string` | No | S3 access key ID (if using AWS SigV4 instead of Bearer token). |
+| `secretAccessKey` | `string` | No | S3 secret access key. |
+
+## Uploading Objects
+
+Upload strings, Blobs, ArrayBuffers, or Uint8Arrays using `putObject`:
+
+```typescript
+// In a browser environment with an HTML File or Blob
 async function handleFileUpload(file: File) {
-  const result = await storage.upload({
-    bucket: "avatars",
-    key: `users/104/${file.name}`,
-    body: file,
+  await avatars.putObject(`users/104/${file.name}`, file, {
     contentType: file.type,
   });
 
-  console.log("Uploaded object URL:", result.url);
+  console.log("Uploaded successfully!");
 }
+
+// Uploading raw text or JSON
+await avatars.putObject("logs/app.log", "Log entry: Application initialized", {
+  contentType: "text/plain",
+});
 ```
 
-## Downloading & Presigned URLs
+## Downloading Objects
+
+Retrieve objects as raw responses, text, JSON, or ArrayBuffers:
 
 ```typescript
-// Fetch a publicly accessible object URL
-const publicUrl = storage.getPublicUrl("avatars", "users/104/photo.jpg");
+// Download as parsed JSON
+const config = await avatars.getObjectAsJson<{ theme: string }>("settings/theme.json");
 
-// Generate a temporary signed URL for a private bucket
-const signedUrl = await storage.getSignedUrl({
-  bucket: "private-documents",
-  key: "tax_returns/2026.pdf",
-  expiresIn: 300, // 5 minutes
-});
+// Download as text string
+const logContent = await avatars.getObjectAsText("logs/app.log");
+
+// Download as raw Response stream
+const response = await avatars.getObject("users/104/photo.jpg");
+const blob = await response.blob();
 ```
 
 ## Listing and Deleting Objects
 
 ```typescript
 // List files in a bucket prefix
-const { objects, nextCursor } = await storage.listObjects({
-  bucket: "media",
+const { contents, isTruncated } = await avatars.listObjects({
   prefix: "uploads/2026/",
-  limit: 50,
+  maxKeys: 50,
 });
 
-for (const obj of objects) {
+for (const obj of contents) {
   console.log(obj.key, obj.size, obj.lastModified);
 }
 
 // Delete an object
-await storage.deleteObject({
-  bucket: "media",
-  key: "uploads/2026/old-temp-image.png",
-});
+await avatars.deleteObject("uploads/2026/old-temp-image.png");
 ```
+
+## Presigned URLs via REST API
+
+To generate presigned download or upload URLs for browser direct-upload, call the Swiftbase REST endpoints:
+
+- `POST /api/buckets/urls/download`: `{ bucket: string, key: string, expiresIn?: number }`
+- `POST /api/buckets/urls/upload`: `{ bucket: string, key: string, contentType?: string, expiresIn?: number }`
