@@ -15,7 +15,9 @@
         "pages": [
           "index",
           "quickstart",
-          "getting-started/architecture"
+          "getting-started/architecture",
+          "cli",
+          "mcp"
         ]
       },
       {
@@ -24,6 +26,8 @@
           "console/projects",
           "console/identity",
           "console/containers",
+          "console/stacks",
+          "console/gateways",
           "console/databases",
           "console/storage",
           "console/cache",
@@ -63,6 +67,8 @@
           "api-reference/overview",
           "api-reference/identity",
           "api-reference/containers",
+          "api-reference/stacks",
+          "api-reference/gateways",
           "api-reference/domains",
           "api-reference/databases",
           "api-reference/storage",

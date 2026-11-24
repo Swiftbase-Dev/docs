@@ -35,7 +35,7 @@ Instead of wiring together disparate cloud services, Swiftbase lets you provisio
 Swiftbase is built for strict multi-tenant isolation:
 
 - **Isolated Projects**: Every project operates as an autonomous tenant with separate databases, secrets, service accounts, and encryption keys.
-- **Dual SDK Ecosystem**: The `swiftbase-sdk` powers web and mobile client applications using OAuth 2.0 PKCE, while `swiftbase-admin-sdk` provides elevated server-side access using service keys.
+- **Client & Admin SDKs**: `@swiftbaseio/sdk` handles web and mobile client apps using OAuth 2.0 PKCE, while `@swiftbaseio/admin-sdk` provides server-side access using scoped service accounts.
 - **REST and SQL Interfaces**: Every database table exposes automatic REST CRUD endpoints, raw SQL execution, and declarative schema migrations.
 
 ## Getting Started

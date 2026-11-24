@@ -1,43 +1,54 @@
 ---
 title: "Service Authentication & Scopes"
-description: "Server-to-server OAuth 2.0 Client Credentials flow and API scope enforcement."
+description: "Server-to-server OAuth 2.0 Client Credentials flow, fine-grained scopes, custom scopes, and token verification."
 ---
 
 Backend applications authenticate with Swiftbase using the OAuth 2.0 Client Credentials grant.
 
 ## How Service Authentication Works
 
-1. During initialization, the Admin SDK sends the `serviceId` and `serviceKey` to `POST /api/auth/service`.
-2. Swiftbase verifies the credentials, checks that the service belongs to the specified `projectId`, and issues a signed JWT access token.
-3. The Admin SDK caches the token and automatically refreshes it before expiry.
-4. All subsequent API calls include the header:
+1. During initialization, `@swiftbaseio/admin-sdk` sends `client_id` (`serviceId`) and `client_secret` (`serviceKey`) to `POST /oauth2/token` with `grant_type=client_credentials` (or you can call `POST /api/auth/service` directly).
+2. Swiftbase verifies the credentials and issues a signed HS256 JWT bound to the service's `projectId`.
+3. The Admin SDK caches the token and refreshes it automatically before expiry.
+4. Subsequent API and `/storage` requests include:
    ```text
    Authorization: Bearer <service_token>
    ```
 
-## Scopes & Least Privilege
+## Fine-Grained Scopes
 
-Services only have access to operations granted to them:
+Every service-account API call is checked against the service's live scopes in the database. Scopes use a `<category>:<resource>:<action>` convention (with `<category>:*` category wildcards and explicit `*` full-project access):
 
-| Scope | Allowed Operations |
+| Category | Example Scopes |
 | :--- | :--- |
-| `db:read` | Execute SELECT queries across database tables |
-| `db:write` | Execute INSERT, UPDATE, DELETE mutations |
-| `db:migrate` | Create, alter, and drop schemas and tables |
-| `identity:read` | Inspect users, roles, and session states |
-| `identity:write` | Create users, assign roles, and trigger password resets |
-| `vault:read` | Retrieve decrypted environment secrets |
-| `storage:admin` | Full control over buckets and objects |
+| **Database** | `database:read`, `database:write`, `database:delete`, `database:data:read`, `database:data:write`, `database:schema:write`, `database:backups:read`, `database:backups:write` |
+| **Storage** | `storage:buckets:read`, `storage:buckets:write`, `storage:buckets:delete`, `storage:objects:read`, `storage:objects:write`, `storage:objects:delete`, `storage:keys:manage` |
+| **Containers & Stacks** | `containers:read`, `containers:write`, `containers:delete`, `containers:deploy`, `containers:logs:read`, `containers:exec`, `stacks:read`, `stacks:plan`, `stacks:apply`, `stacks:delete` |
+| **Gateways & Domains** | `gateways:read`, `gateways:write`, `gateways:delete`, `domains:read`, `domains:write`, `domains:delete` |
+| **Identity** | `identity:users:read`, `identity:users:write`, `identity:users:delete`, `identity:roles:read`, `identity:roles:write`, `identity:services:read`, `identity:services:write`, `identity:tokens:verify` |
+| **Vault & Config** | `vault:secrets:list`, `vault:secrets:decrypt`, `vault:secrets:write`, `vault:secrets:delete`, `vault:logs:read`, `config:read`, `config:write`, `config:delete` |
+| **Cache, Search, Scheduler** | `cache:read`, `cache:write`, `cache:delete`, `cache:flush`, `search:query`, `search:documents:write`, `search:indexes:read`, `search:indexes:write`, `scheduler:read`, `scheduler:write`, `scheduler:trigger`, `scheduler:delete` |
+| **AI, Email, Monitoring, Analytics, Security** | `ai:inference`, `ai:prompts:read`, `ai:guardrails:read`, `ai:keys:manage`, `ai:usage:read`, `email:send`, `monitoring:checks:read`, `monitoring:statuspages:read`, `analytics:ingest`, `analytics:read`, `security:findings:read`, `security:audit:read` |
+| **Project & Integrations** | `project:read`, `project:write`, `integrations:read`, `integrations:write` |
+
+### Custom Scopes (`custom:`)
+
+You can define project-specific scopes for inter-service authorization without overlapping Swiftbase platform scopes. Custom scopes always use the `custom:` prefix (for example, `custom:billing:refund` or `custom:orders:write`).
 
 ## Verifying Service Tokens
 
-If you operate your own custom microservices, you can verify inbound service tokens locally using public keys (JWKS) or via the verification endpoint:
+Two services can validate each other using short-lived Swiftbase JWTs without sharing `secretKey`s. The calling service needs the `identity:tokens:verify` scope:
 
 ```typescript
-import { verifyServiceToken } from "swiftbase-admin-sdk";
+import { verifyServiceToken, customScope } from "@swiftbaseio/admin-sdk";
 
-const isValid = await verifyServiceToken(inboundBearerToken);
-if (!isValid) {
-  throw new Error("Unauthorized service call");
-}
+const result = await verifyServiceToken(inboundBearerToken, {
+  scopes: [customScope("billing:refund")],
+  match: "all",
+});
+
+// Returns { valid: true, service: { id, name, projectId, scopes } }
+console.log("Verified service:", result.service.name);
 ```
+
+Swiftbase enforces same-project isolation, checks that the target service account has not been revoked, and evaluates the requested scopes against the service's current scope list.

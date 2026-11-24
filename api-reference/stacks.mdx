@@ -1,0 +1,19 @@
+---
+title: "Declarative Stack Endpoints"
+description: "Listing, planning, applying, and tearing down declarative container stacks."
+---
+
+- `GET /api/stacks?projectId=:projectId` — List deployed stacks (`stacks:read`)
+- `POST /api/stacks/plan` — Dry-run a stack manifest (`stacks:plan`)
+- `POST /api/stacks/apply` — Apply a stack manifest (`stacks:apply`)
+- `POST /api/stacks/:id/down` — Tear down a stack (`stacks:delete`)
+
+**Example Request (`POST /api/stacks/plan` or `/apply`):**
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "backend-stack",
+  "manifest": "services:\n  api:\n    image: registry.swiftbase.io/my-proj/api:latest\n    port: 8080\n",
+  "prune": false
+}
+```

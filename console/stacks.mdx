@@ -1,0 +1,12 @@
+---
+title: "Declarative Stacks"
+description: "Plan, deploy, and tear down multi-container stacks from a YAML manifest."
+---
+
+Declarative Stacks let you define multiple project containers, ports, resources, and environment variables in a single manifest and apply changes with dry-run planning.
+
+## Workflow
+
+1. **Plan** (`POST /api/stacks/plan` or `swiftbase compose plan -f stack.yaml`): Diffs your manifest against running containers and shows what will be created, updated, unchanged, or pruned.
+2. **Apply** (`POST /api/stacks/apply` or `swiftbase compose up -f stack.yaml`): Provisions and updates containers in the project's isolated Kubernetes namespace.
+3. **Teardown** (`POST /api/stacks/:id/down` or `swiftbase compose down <stackId>`): Stops and removes containers belonging to the stack.

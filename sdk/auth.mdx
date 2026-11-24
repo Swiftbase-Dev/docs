@@ -3,14 +3,14 @@ title: "User Authentication"
 description: "Authenticating users with email/password, hosted Universal Login (PKCE), social providers, and token sessions."
 ---
 
-The `swiftbase-sdk` client library supports both embedded login forms built in your application and hosted Universal Login flows.
+The `@swiftbaseio/sdk` client library supports both embedded login forms built in your application and hosted Universal Login flows.
 
 ## 1. Embedded Login (Custom UI)
 
 Authenticate users directly using your own UI components:
 
 ```typescript
-import { loginWithPassword, isLoggedIn, logout } from "swiftbase-sdk";
+import { loginWithPassword, isLoggedIn, logout } from "@swiftbaseio/sdk";
 
 // Sign in with email and password
 try {
@@ -37,7 +37,7 @@ await logout();
 For enhanced security, social SSO, and multi-factor authentication, redirect users to the hosted login flow:
 
 ```typescript
-import { loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
+import { loginWithRedirect, handleRedirectCallback } from "@swiftbaseio/sdk";
 
 // 1. Trigger login redirect
 function onLoginButtonClick() {
@@ -64,7 +64,7 @@ async function onCallbackPageLoad() {
 Initiate self-service password recovery:
 
 ```typescript
-import { forgotPassword, resetPassword } from "swiftbase-sdk";
+import { forgotPassword, resetPassword } from "@swiftbaseio/sdk";
 
 // Send reset email
 await forgotPassword({ email: "user@example.com" });

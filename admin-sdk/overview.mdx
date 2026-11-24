@@ -1,14 +1,14 @@
 ---
 title: "Admin SDK Overview"
-description: "Server-side integration and administrative automation with swiftbase-admin-sdk."
+description: "Server-side integration and administrative automation with @swiftbaseio/admin-sdk."
 ---
 
-The `swiftbase-admin-sdk` provides elevated, server-side access to Swiftbase infrastructure. Use it in backend APIs, worker services, scheduled daemons, and CI/CD pipelines.
+`@swiftbaseio/admin-sdk` provides server-side access to Swiftbase using scoped service accounts. Use it in backend APIs, worker services, scheduled jobs, and CI/CD pipelines.
 
 ## Installation
 
 ```bash
-npm install swiftbase-admin-sdk
+npm install @swiftbaseio/admin-sdk
 ```
 
 ## Initialization
@@ -16,7 +16,7 @@ npm install swiftbase-admin-sdk
 Initialize the Admin SDK using service account credentials generated in **Identity** > **Services**:
 
 ```typescript
-import { initializeSdk, login } from "swiftbase-admin-sdk";
+import { initializeSdk, login } from "@swiftbaseio/admin-sdk";
 
 // Initialize with project ID and service credentials
 initializeSdk(process.env.SWIFTBASE_PROJECT_ID!, {

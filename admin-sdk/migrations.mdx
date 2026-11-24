@@ -3,7 +3,7 @@ title: "Database Migrations in CI/CD"
 description: "Applying zero-SQL declarative schema migrations safely during deployments."
 ---
 
-The `swiftbase-admin-sdk` allows deployment pipelines to apply declarative schema migrations before new application containers start.
+The `@swiftbaseio/admin-sdk` allows deployment pipelines to apply declarative schema migrations before new application containers start.
 
 ## Running Migrations in Deployment Scripts
 
@@ -18,7 +18,7 @@ import {
   integer,
   boolean,
   timestamp,
-} from "swiftbase-admin-sdk";
+} from "@swiftbaseio/admin-sdk";
 
 // Initialize with project ID and service credentials
 initializeSdk(process.env.SWIFTBASE_PROJECT_ID!, {

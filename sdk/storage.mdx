@@ -3,14 +3,14 @@ title: "Object Storage"
 description: "Uploading, downloading, and listing objects with the S3-compatible client SDK."
 ---
 
-The `Storage` class in `swiftbase-sdk` provides an S3-compatible interface for uploading, downloading, listing, and deleting objects within your project buckets.
+The `Storage` class in `@swiftbaseio/sdk` provides an S3-compatible interface for uploading, downloading, listing, and deleting objects within your project buckets.
 
 ## Initializing Storage
 
 Instantiate `Storage` with target bucket settings:
 
 ```typescript
-import { Storage } from "swiftbase-sdk";
+import { Storage } from "@swiftbaseio/sdk";
 
 const avatars = new Storage({
   bucket: "avatars",
@@ -22,7 +22,7 @@ const avatars = new Storage({
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `bucket` | `string` | Yes | Target storage bucket name. |
-| `endpoint` | `string` | No | Custom S3 endpoint (defaults to `<baseUrl>/s3`). |
+| `endpoint` | `string` | No | Custom S3 endpoint (defaults to `<baseUrl>/storage`). |
 | `region` | `string` | No | S3 region (defaults to `us-east-1`). |
 | `accessKeyId` | `string` | No | S3 access key ID (if using AWS SigV4 instead of Bearer token). |
 | `secretAccessKey` | `string` | No | S3 secret access key. |

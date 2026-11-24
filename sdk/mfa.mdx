@@ -26,7 +26,7 @@ Because MFA is handled securely on the hosted Universal Login page, client appli
 Simply initialize the SDK and invoke `loginWithRedirect`:
 
 ```typescript
-import { initializeSdk, loginWithRedirect, handleRedirectCallback } from "swiftbase-sdk";
+import { initializeSdk, loginWithRedirect, handleRedirectCallback } from "@swiftbaseio/sdk";
 
 // Initialize with project configuration
 initializeSdk("proj_01HZX87K9Z1X2Y3W4V5U6T7S8R", {
@@ -34,7 +34,7 @@ initializeSdk("proj_01HZX87K9Z1X2Y3W4V5U6T7S8R", {
   authWebUrl: "https://identity.swiftbase.io",
 });
 
-// Trigger login with MFA challenge handled seamlessly
+// Trigger login with MFA challenge handled automatically
 loginWithRedirect({
   redirectUri: window.location.origin + "/callback",
 });

@@ -3,14 +3,14 @@ title: "AI Studio Client"
 description: "Invoking LLM chat completions and running managed prompt templates from client applications."
 ---
 
-The `ai` module in `swiftbase-sdk` lets you interact with AI models without managing third-party provider accounts or embedding raw API keys in client code.
+The `ai` module in `@swiftbaseio/sdk` lets you interact with AI models without managing third-party provider accounts or embedding raw API keys in client code.
 
 ## Chat Completions
 
 Send conversational messages and receive completions matching the OpenAI-compatible schema:
 
 ```typescript
-import { ai } from "swiftbase-sdk";
+import { ai } from "@swiftbaseio/sdk";
 
 const response = await ai.chat.completions.create({
   model: "gemini-3.5-flash-lite", // Default model if omitted
@@ -30,7 +30,7 @@ console.log("Model response:", response.choices[0].message.content);
 Execute prompt templates managed in the AI Studio by their ID:
 
 ```typescript
-import { ai } from "swiftbase-sdk";
+import { ai } from "@swiftbaseio/sdk";
 
 const result = await ai.prompts.run("prompt_01HZX87K9Z1X2Y3W4V", {
   inputs: {

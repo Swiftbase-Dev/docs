@@ -1,0 +1,28 @@
+---
+title: "API Gateways"
+description: "Route custom domains and paths to project containers with identity rules, CORS, rate limits, and edge protection."
+---
+
+Swiftbase **API Gateways** expose your project containers behind custom domains or `.swiftbase.app` subdomains using Traefik v3 ingress rules.
+
+## Gateway Settings
+
+Open **API Gateway** in the console and click **New gateway** (or **Settings** on an existing gateway):
+
+- **General**: Name, domain (validated FQDN; `*.swiftbase.io` is reserved), Force HTTPS, Security Headers (`nosniff`, `X-Frame-Options: DENY`, HSTS), and Gzip/Brotli compression.
+- **CORS**: Allowed origins, methods, headers, credentials (wildcard `*` is blocked when credentials are enabled), and preflight `Max-Age`.
+- **Defaults & Protection**: Gateway-wide default rate limit (RPM), default max request body size (up to 100 MB), and IP allowlist (IPv4/IPv6 CIDRs).
+
+## Routes & Identity Rules
+
+Each gateway route targets a container in the same project:
+
+- **Routing**: Prefix (`PathPrefix`) or Exact (`Path`) matching, HTTP method filtering (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, or `*`), target container and port, and path transformation (`Keep`, `Strip prefix`, or `Rewrite to`).
+- **Access & Identity**:
+  - **Public (`none`)**: Open access; strips incoming `X-Swiftbase-*` headers so clients cannot spoof identity.
+  - **Users (`users`)**: Requires a valid project OAuth2/JWT Bearer token. Optionally restrict by **Allowed Roles** (`any` or `all`) and **Required Permissions**.
+  - **Services (`services`)**: Requires a project service account (`X-API-Key` or service Bearer JWT). Optionally restrict by **Allowed Services** and **Required Scopes**.
+  - **Users & Services (`both`)**: Accepts either a project user or a project service matching the configured rules.
+- **Protection & Headers**: Per-route rate limit/burst, max body size override, IP allowlist, upstream retries (0–3), and custom request/response headers (reserved headers such as `X-Swiftbase-*`, `Host`, and `Authorization` are stripped).
+
+Verified requests forward `X-Swiftbase-Project-Id`, `X-Swiftbase-Principal-Type`, and user/service identity headers to your container.

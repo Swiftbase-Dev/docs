@@ -10,7 +10,7 @@ Passkeys provide phishing-resistant, biometric authentication using Touch ID, Fa
 Always verify that the current client environment supports WebAuthn:
 
 ```typescript
-import { isPasskeySupported } from "swiftbase-sdk";
+import { isPasskeySupported } from "@swiftbaseio/sdk";
 
 if (isPasskeySupported()) {
   // Show "Sign in with Passkey" button
@@ -22,7 +22,7 @@ if (isPasskeySupported()) {
 Enroll a passkey for the currently logged-in user:
 
 ```typescript
-import { registerPasskey } from "swiftbase-sdk";
+import { registerPasskey } from "@swiftbaseio/sdk";
 
 async function enrollUserDevice() {
   try {
@@ -41,7 +41,7 @@ async function enrollUserDevice() {
 Authenticate an existing user with a passkey:
 
 ```typescript
-import { loginWithPasskey } from "swiftbase-sdk";
+import { loginWithPasskey } from "@swiftbaseio/sdk";
 
 async function onPasskeyLogin() {
   try {
@@ -61,7 +61,7 @@ async function onPasskeyLogin() {
 Inspect and remove registered authenticators:
 
 ```typescript
-import { listPasskeys, deletePasskey } from "swiftbase-sdk";
+import { listPasskeys, deletePasskey } from "@swiftbaseio/sdk";
 
 // Fetch user's registered keys
 const passkeys = await listPasskeys();

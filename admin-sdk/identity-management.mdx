@@ -3,7 +3,7 @@ title: "Programmatic Identity Management"
 description: "Creating, updating, and managing customer users, roles, and permissions using the Admin SDK."
 ---
 
-The `swiftbase-admin-sdk` allows your backend services to manage customer accounts, assign roles, and handle provisioning.
+The `@swiftbaseio/admin-sdk` allows your backend services to manage customer accounts, assign roles, and handle provisioning.
 
 ## User CRUD Operations
 
@@ -13,7 +13,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from "swiftbase-admin-sdk";
+} from "@swiftbaseio/admin-sdk";
 
 // List users with pagination
 const usersList = await getUsers({ page: 1, limit: 50 });
@@ -47,7 +47,7 @@ import {
   assignRole,
   unassignRole,
   getRoles,
-} from "swiftbase-admin-sdk";
+} from "@swiftbaseio/admin-sdk";
 
 // Define a new role with specific permissions
 const editorRole = await createRole({
@@ -67,4 +67,28 @@ await unassignRole({
   userId: "user_01HZX87K9Z",
   roleId: editorRole.id,
 });
+```
+
+## Managing Custom Service Scopes
+
+```typescript
+import {
+  customScope,
+  getScopes,
+  createCustomScope,
+  deleteCustomScope,
+} from "@swiftbaseio/admin-sdk";
+
+// Fetch built-in Swiftbase scopes and custom project scopes
+const { categories, customScopes } = await getScopes("proj_01HZX87K9Z");
+
+// Create a project-scoped custom scope (prefixed with `custom:`)
+const scope = await createCustomScope({
+  projectId: "proj_01HZX87K9Z",
+  name: customScope("billing:refund"),
+  description: "Allow issuing customer refunds",
+});
+
+// Delete a custom scope
+await deleteCustomScope(scope.id);
 ```

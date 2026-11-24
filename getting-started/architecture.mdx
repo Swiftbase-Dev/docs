@@ -1,6 +1,6 @@
 ---
 title: "Architecture & Security"
-description: "How Swiftbase isolates tenants, safeguards credentials, and enforces zero-trust process boundaries."
+description: "How Swiftbase isolates tenants, safeguards credentials, and enforces project and container boundaries."
 ---
 
 Swiftbase delivers cloud backend capabilities while enforcing strict tenant boundaries. This document outlines our multi-tenant isolation, process isolation, and authentication security models.
@@ -30,7 +30,7 @@ Swiftbase defines distinct actor types to separate administrative management fro
 | **Console User** | Developer or team member managing projects in the web console | OAuth 2.0 + OIDC, email/password, social SSO, or Passkey |
 | **Customer End User** | End user logging into your client web or mobile application | OAuth 2.0 Authorization Code Flow with PKCE, Passkey, or TOTP MFA |
 | **Service Account** | Automated server, CI/CD pipeline, or backend microservice | OAuth 2.0 Client Credentials flow using `serviceId` and `serviceKey` |
-| **Internal Service** | Core Swiftbase subsystems communicating in-cluster | Mutual TLS with short-lived service JWTs validated via JWKS |
+| **Internal Service** | Core Swiftbase subsystems communicating in-cluster | Cluster network isolation with short-lived HS256 service JWTs |
 
 ## Passkey and WebAuthn Guarantees
 

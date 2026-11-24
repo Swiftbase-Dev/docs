@@ -110,3 +110,48 @@ Generates an authentication challenge.
 `POST /api/passkeys/authenticate/verify`
 
 Validates the signed assertion and issues a session token.
+
+---
+
+## Service Accounts & Scopes
+
+### Client Credentials Token Exchange
+`POST /oauth2/token`
+
+```json
+{
+  "grant_type": "client_credentials",
+  "client_id": "svc_01HZX87K9Z",
+  "client_secret": "sb_sec_..."
+}
+```
+
+### Verify Service Token
+`POST /api/verify-service-token`
+
+Requires caller authentication (`identity:tokens:verify` scope for service accounts). Enforces same-project isolation, verifies the service account is active, and checks requested built-in or `custom:` scopes.
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "scopes": ["custom:billing:refund"],
+  "match": "all"
+}
+```
+
+### List Built-In & Custom Scopes
+`GET /api/identity/scopes?projectId=:projectId`
+
+### Create Custom Scope
+`POST /api/identity/scopes`
+
+```json
+{
+  "projectId": "proj_01HZX87K9Z",
+  "name": "custom:billing:refund",
+  "description": "Allow issuing customer refunds"
+}
+```
+
+### Delete Custom Scope
+`DELETE /api/identity/scopes/:id`

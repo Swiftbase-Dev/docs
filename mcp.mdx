@@ -1,0 +1,54 @@
+---
+title: "MCP Server"
+description: "Connect AI agents to Swiftbase via Streamable HTTP or the CLI stdio bridge with project isolation and scoped service accounts."
+---
+
+Swiftbase includes a built-in **Model Context Protocol (MCP)** server at `https://api.swiftbase.io/mcp`. AI agents can inspect and manage databases, storage, containers, stacks, gateways, vault secrets, and more—subject to the exact same project isolation and service-account scopes as the REST API.
+
+## Authentication & Scoping
+
+- **Service Account API Key (`X-API-Key: sb_sec_...`)** or **Service Account Bearer JWT (`Authorization: Bearer <jwt>`)**:
+  - Strictly pinned to the service account's `projectId` (cross-project tool calls are rejected).
+  - `tools/list` dynamically filters tools to those permitted by the service account's live scopes.
+  - Every `tools/call` enforces scope checks both in the MCP dispatcher and in the underlying API route.
+- **Platform User JWT (`Authorization: Bearer <jwt>`)**: Enforces project membership (`viewer`, `editor`, `owner`). Tenant end-user tokens are rejected.
+
+## Connecting via Streamable HTTP (Remote)
+
+```json
+{
+  "mcpServers": {
+    "swiftbase": {
+      "url": "https://api.swiftbase.io/mcp",
+      "headers": {
+        "X-API-Key": "<YOUR_SERVICE_SECRET_KEY>"
+      }
+    }
+  }
+}
+```
+
+## Connecting via CLI `stdio` Bridge (Local)
+
+For MCP clients that require a local `stdio` command:
+
+```json
+{
+  "mcpServers": {
+    "swiftbase": {
+      "command": "swiftbase",
+      "args": ["mcp"],
+      "env": {
+        "SWIFTBASE_API_URL": "https://api.swiftbase.io",
+        "SWIFTBASE_API_KEY": "<YOUR_SERVICE_SECRET_KEY>"
+      }
+    }
+  }
+}
+```
+
+## Available Capabilities
+
+- **Tools**: Grouped across Projects, Databases, Storage/S3, Containers, Stacks, Gateways & Domains, Identity & Scopes, Vault & Config, Cache/Search/Scheduler, AI, Email, Monitoring, Analytics, and Security.
+- **Resources**: Read-only context URIs (`swiftbase://project/{projectId}/overview`, `swiftbase://project/{projectId}/scopes`).
+- **Prompts**: Reusable workflows (`swiftbase-deploy-stack`, `swiftbase-debug-container`, `swiftbase-security-review`).

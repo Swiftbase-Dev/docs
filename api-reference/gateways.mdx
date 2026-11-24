@@ -1,0 +1,43 @@
+---
+title: "API Gateway Endpoints"
+description: "Managing API gateways, container routes, and Traefik ForwardAuth verification."
+---
+
+## Gateways
+
+- `GET /api/gateways?projectId=:projectId` — List gateways and their routes
+- `POST /api/gateways` — Create a gateway (`name`, `domain`, `projectId`, `forceHttps`, `corsEnabled`, `corsOrigins`, `corsMethods`, `corsHeaders`, `corsAllowCredentials`, `corsMaxAge`, `securityHeadersEnabled`, `compressionEnabled`, `defaultRateLimitRpm`, `defaultMaxBodySizeMb`, `ipAllowList`)
+- `PUT /api/gateways/:id` — Update gateway settings
+- `DELETE /api/gateways/:id` — Delete a gateway and its routes
+
+## Routes
+
+Routes target project containers only (`containerId` must belong to the gateway's project):
+
+- `POST /api/gateways/:id/routes` — Create a route
+- `PUT /api/gateways/:id/routes/:routeId` — Update a route
+- `DELETE /api/gateways/:id/routes/:routeId` — Delete a route
+
+```json
+{
+  "pathPrefix": "/v1/orders",
+  "matchType": "prefix",
+  "methods": ["GET", "POST"],
+  "containerId": "cnt_01HZX87K9Z",
+  "targetPort": 8080,
+  "authMode": "both",
+  "authRules": {
+    "allowedRoles": ["admin", "editor"],
+    "roleMatch": "any",
+    "allowedServiceIds": ["svc_01HZX87K9Z"],
+    "requiredPermissions": ["custom:orders:write"],
+    "permissionMatch": "all"
+  },
+  "rateLimitRpm": 120,
+  "maxBodySizeMb": 5
+}
+```
+
+## ForwardAuth Verification
+
+- `GET /api/gateway/verify?projectId=:projectId&routeId=:routeId` — Internal Traefik ForwardAuth endpoint enforcing `projectId` isolation and route `authMode` / `authRules`.

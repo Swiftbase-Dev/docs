@@ -26,7 +26,7 @@ The built-in file explorer lets you manage objects directly:
 
 ## Virtual Host Subdomain URLs
 
-Every bucket receives a dedicated virtual-host URL structure for clean asset delivery:
+Every bucket receives a dedicated virtual-host URL structure for direct asset delivery:
 
 ```text
 https://[bucket-name].storage.[project-slug].swiftbase.app/[object-path]
@@ -47,11 +47,11 @@ For private buckets, your backend can generate temporary presigned URLs using ei
 - **Download URLs**: Allow users to download a private file with an expiration window (e.g., 15 minutes).
 - **Upload URLs**: Allow clients to upload files directly to storage without routing heavy payloads through your backend servers.
 
-```typescript
-// Example using swiftbase-sdk to generate a presigned download URL
-const downloadUrl = await storage.getSignedUrl("invoices", "2026/inv-0492.pdf", {
-  expiresIn: 3600, // 1 hour
-});
+```bash
+curl -X POST https://api.swiftbase.io/api/buckets/urls/download \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"bucket": "invoices", "key": "2026/inv-0492.pdf", "expiresIn": 3600}'
 ```
 
 ## CORS & File Size Limits

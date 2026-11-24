@@ -3,7 +3,7 @@ title: "Identity & Access"
 description: "Managing user directories, service accounts, roles, authentication providers, Passkeys, and the Universal Login page."
 ---
 
-The **Identity** module provides complete Identity as a Service (IDaaS) for your applications. It allows you to manage customer users, service accounts, authentication providers, and security policies without third-party auth vendors.
+The **Identity** module provides built-in authentication and user management for your applications. Manage end users, service accounts, roles, authentication providers, and security policies in one place.
 
 ## Users Directory
 
@@ -20,17 +20,17 @@ Service accounts are non-human identities used by backend applications, daemon p
 1. Navigate to **Identity** > **Services**.
 2. Click **Create Service**.
 3. Enter a descriptive service name (e.g., `payment-worker` or `deployment-pipeline`).
-4. Select the required **Scopes** (e.g., `db:read`, `db:write`, `storage:admin`).
+4. Use the categorized **Scope Picker** (with search, presets, and per-category selection) to assign fine-grained Swiftbase scopes (e.g., `database:data:read`, `storage:objects:write`, `identity:tokens:verify`) or create project-specific `custom:` scopes.
 5. Click **Create**.
-6. Securely copy the generated `serviceKey`. The key is only displayed once.
+6. Copy the generated `serviceKey`—it is only displayed once.
 
-In your backend code, authenticate using the `swiftbase-admin-sdk` with this `serviceId` and `serviceKey`.
+In your backend code, authenticate using `@swiftbaseio/admin-sdk` with `serviceId` and `serviceKey`. To connect an AI agent, click **Connect MCP** on the service card for ready-to-paste Streamable HTTP and CLI `stdio` configurations.
 
 ## Roles and Permissions
 
-Swiftbase supports granular Role-Based Access Control (RBAC):
+Swiftbase supports Role-Based Access Control (RBAC):
 
-- **Roles**: Logical groups representing user archetypes (e.g., `admin`, `subscriber`, `editor`).
+- **Roles**: Named groups assigned to users (e.g., `admin`, `subscriber`, `editor`).
 - **Permissions**: Atomic rights (e.g., `posts:create`, `billing:view`, `users:manage`).
 - **Assignment**: Roles can be assigned directly to users or services via the console or programmatically through the Admin SDK.
 

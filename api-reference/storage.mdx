@@ -1,59 +1,44 @@
 ---
-title: "Storage & Bucket Endpoints"
-description: "Creating buckets, listing files, generating presigned URLs, and streaming object payloads."
+title: "Storage & S3-Compatible API"
+description: "Bucket management, presigned URLs, and full S3-compatible REST API endpoints."
 ---
 
-## Bucket Management
+## Bucket Management (REST)
 
-### List Buckets
-`GET /api/buckets?projectId=:projectId`
-
-### Create Bucket
-`POST /api/buckets`
-
-**Request Body:**
-```json
-{
-  "projectId": "proj_01HZX87K9Z",
-  "name": "receipts",
-  "visibility": "private"
-}
-```
-
----
+- `GET /api/buckets?projectId=:projectId` — List buckets
+- `POST /api/buckets` — Create bucket (`{ projectId, name, region, cdnEnabled }`)
+- `DELETE /api/buckets/:id` — Delete bucket
+- `GET /api/buckets/:id/keys`, `POST /api/buckets/:id/keys`, `DELETE /api/buckets/:id/keys/:keyId` — Manage S3 access keys
 
 ## Presigned URLs
 
-### Generate Download URL
-`POST /api/buckets/urls/download`
-
-**Request Body:**
-```json
-{
-  "bucket": "receipts",
-  "key": "2026/nov/rec-1049.pdf",
-  "expiresIn": 900
-}
-```
-
-### Generate Upload URL
-`POST /api/buckets/urls/upload`
-
-**Request Body:**
-```json
-{
-  "bucket": "receipts",
-  "key": "2026/nov/rec-1050.pdf",
-  "contentType": "application/pdf",
-  "expiresIn": 600
-}
-```
+- `POST /api/buckets/urls/download` — `{ bucket, key, expiresIn }`
+- `POST /api/buckets/urls/upload` — `{ bucket, key, contentType, expiresIn }`
 
 ---
 
-## Direct Object Streaming
+## S3-Compatible REST API (`/storage`)
 
-### Fetch Public Object
-`GET /storage/:bucket/*`
+Swiftbase exposes an AWS S3-compatible REST API at `https://api.swiftbase.io/storage`.
 
-Streams the object directly to the client with `Content-Type`, `ETag`, and `Cache-Control` headers.
+### Authentication
+- **AWS SigV4 (`BucketKey`)**: Header-based `AWS4-HMAC-SHA256` (±15-minute clock-skew check) and presigned query URLs (`X-Amz-Expires` enforced), strictly bound to the key's bucket. Supports `STREAMING-AWS4-HMAC-SHA256-PAYLOAD` chunked uploads.
+- **Swiftbase Service Account (`Authorization: Bearer <jwt>`)**: Enforces strict `projectId` isolation and fine-grained `storage:buckets:*` / `storage:objects:*` scopes.
+- **Swiftbase User JWT**: Enforces project role permissions (`viewer`, `editor`, `owner`).
+- **Anonymous**: Permitted only for `GET` / `HEAD /storage/:bucket/*` on public objects (`AllUsers READ` ACL).
+
+### Supported S3 Operations
+
+| Scope | Endpoint | Operation |
+| :--- | :--- | :--- |
+| Service | `GET /storage` | `ListBuckets` |
+| Bucket | `HEAD /storage/:bucket` | `HeadBucket` (`x-amz-bucket-region`) |
+| Bucket | `PUT /storage/:bucket` | `CreateBucket`, `PutBucketCors` (`?cors`), `PutBucketVersioning` (`?versioning`) |
+| Bucket | `DELETE /storage/:bucket` | `DeleteBucket` (`409 BucketNotEmpty` if non-empty), `DeleteBucketCors` (`?cors`) |
+| Bucket | `GET /storage/:bucket` | `ListObjects` (V1) & `ListObjectsV2` (`?list-type=2`, `prefix`, `delimiter`, `max-keys`, `marker`, `continuation-token`, `start-after`, `encoding-type=url`), `GetBucketLocation` (`?location`), `GetBucketCors` (`?cors`), `GetBucketVersioning` (`?versioning`), `ListMultipartUploads` (`?uploads`) |
+| Bucket | `POST /storage/:bucket?delete` | `DeleteObjects` (batch delete up to 1,000 keys) |
+| Object | `HEAD /storage/:bucket/*` | `HeadObject` (conditional headers, `Accept-Ranges`, `x-amz-meta-*`) |
+| Object | `GET /storage/:bucket/*` | `GetObject` (`Range` / `206`, conditional headers `304`/`412`, `response-*` overrides, `x-amz-meta-*`), `GetObjectAcl` (`?acl`), `GetObjectTagging` (`?tagging`), `ListParts` (`?uploadId=`) |
+| Object | `PUT /storage/:bucket/*` | `PutObject` (metadata, `Cache-Control`, `Content-Disposition`, `Content-Encoding`, `Content-MD5`, `x-amz-acl`), `CopyObject` (`x-amz-copy-source` with cross-project check), `UploadPart` (`?partNumber=&uploadId=`), `PutObjectAcl` (`?acl`), `PutObjectTagging` (`?tagging`) |
+| Object | `POST /storage/:bucket/*` | `CreateMultipartUpload` (`?uploads`), `CompleteMultipartUpload` (`?uploadId=`) |
+| Object | `DELETE /storage/:bucket/*` | `DeleteObject`, `DeleteObjectTagging` (`?tagging`), `AbortMultipartUpload` (`?uploadId=`) |
